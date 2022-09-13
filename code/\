@@ -53,12 +53,8 @@ for subfolder in (root / "bids").glob("sub*"):
     
     # STEP 1: Remove trials and post-target trials 
     if int(subfolder.name[-3:]) < 100:
-        idx = np.concatenate([np.where(events[:,2]==10)[0], np.where(events[:,2]==10)[0]+1])
-    else:
-        idx = np.genfromtxt(subfolder / "beh" / f"{subfolder.name}_task-oneback_beh.tsv", delimiter='\t', usecols=0, skip_header=1, dtype=int)+1    
-    # TODO: this doesn't work for experiment I 
-    events = np.delete(events, idx, axis=0)
-     
+        pass
+
     # STEP 1: Remove power line noise and apply minimum-phase highpass filter
     X = raw.get_data().T
     X, _ = dss_line(X, fline=50, sfreq=raw.info["sfreq"], nremove=5)
