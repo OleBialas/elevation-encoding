@@ -40,6 +40,7 @@ for subfolder in (root / "bids").glob("sub*"):
         raw = read_raw_brainvision(
             subfolder / "eeg" / f"{subfolder.name}_task-deviantdetection_eeg.vhdr"
         )
+        raw.rename_channels(electrode_names)
         tmin, tmax, event_ids = epoch_parameters_epx1
     else:
         raw = read_raw_brainvision(
@@ -47,7 +48,6 @@ for subfolder in (root / "bids").glob("sub*"):
         )
         tmin, tmax, event_ids = epoch_parameters_epx2
     raw.load_data()
-    # raw.rename_channels(electrode_names)
     raw.set_montage("standard_1020")
     events = events_from_annotations(raw)[0]
 
@@ -117,7 +117,7 @@ for subfolder in (root / "bids").glob("sub*"):
     epochs = ar.fit_transform(epochs)
 
     # Save the results
-    outdir = root / "preprocessed" / "subfolder.name"
+    outdir = root / "preprocessed" / subfolder.name
     if not outdir.exists():
         outdir.mkdir()
     ica.save(outdir / f"{subfolder.name}-ica.fif", overwrite=True)
