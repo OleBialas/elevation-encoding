@@ -50,6 +50,8 @@ for subfolder in (root / "bids").glob("sub*"):
     raw.load_data()
     raw.set_montage("standard_1020")
     events = events_from_annotations(raw)[0]
+    # remove all meaningless event codes
+    events = events[[not e in [99999, 1, 2, 3] for e in events[:, 2]]]
 
     # STEP 1: Remove power line noise and apply minimum-phase highpass filter
     X = raw.get_data().T
