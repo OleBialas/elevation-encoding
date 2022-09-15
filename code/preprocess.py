@@ -9,16 +9,16 @@ from mne.preprocessing import ICA, read_ica, corrmap
 from meegkit.dss import dss_line
 
 root = Path(__file__).parent.parent.absolute()
-electrode_names = json.load(open(root/'code'/'electrode_names.json'))
+electrode_names = json.load(open(root / "code" / "electrode_names.json"))
 # tmin, tmax and event_ids for both experiments
 epoch_parameters_epx2 = [
     -0.1,
     1.5,
     {
-        "37.5": 1,
-        "12.5": 2,
-        "-12.5": 3,
-        "-37.5": 4,
+        "37.5": 4,
+        "12.5": 5,
+        "-12.5": 6,
+        "-37.5": 7,
     },
 ]
 epoch_parameters_epx1 = [
@@ -47,18 +47,10 @@ for subfolder in (root / "bids").glob("sub*"):
         )
         tmin, tmax, event_ids = epoch_parameters_epx2
     raw.load_data()
-    raw.rename_channels(electrode_names)
+    # raw.rename_channels(electrode_names)
     raw.set_montage("standard_1020")
     events = events_from_annotations(raw)[0]
-    
-    # STEP 1: Remove trials and post-target trials 
-    if int(subfolder.name[-3:]) < 100:
-        idx = np.concatenate([np.where(events[:,2]==10)[0], np.where(events[:,2]==10)[0]+1])
-    else:
-        idx = np.genfromtxt(subfolder / "beh" / f"{subfolder.name}_task-oneback_beh.tsv", delimiter='\t', usecols=0, skip_header=1, dtype=int)+1    
-    # TODO: this doesn't work for experiment I 
-    events = np.delete(events, idx, axis=0)
-     
+
     # STEP 1: Remove power line noise and apply minimum-phase highpass filter
     X = raw.get_data().T
     X, _ = dss_line(X, fline=50, sfreq=raw.info["sfreq"], nremove=5)
@@ -68,12 +60,36 @@ for subfolder in (root / "bids").glob("sub*"):
 
     # STEP 2: Epoch and downsample the data
     epochs = Epochs(
-        raw, events, event_id=event_ids, tmin=tmin, tmax=tmax, baseline=None
-    , preload=True)
+        raw,
+        events,
+        event_id=event_ids,
+        tmin=tmin,
+        tmax=tmax,
+        baseline=None,
+        preload=True,
+    )
     epochs.resample(128)
     del raw
 
-    # STEP 3: Apply robust average reference
+    # STEP 3: Remove trials and post-target trials
+    if int(subfolder.name[-3:]) < 100:
+        idx = np.concatenate(
+            [np.where(events[:, 2] == 10)[0], np.where(events[:, 2] == 10)[0] + 1]
+        )
+    else:
+        idx = (
+            np.genfromtxt(
+                subfolder / "beh" / f"{subfolder.name}_task-oneback_beh.tsv",
+                delimiter="\t",
+                usecols=0,
+                skip_header=1,
+                dtype=int,
+            )
+            + 1
+        )
+    epochs.drop(idx)
+
+    # STEP 4: Apply robust average reference
     r = Ransac(n_jobs=4)
     epochs_interp = r.fit_transform(epochs)
     epochs_interp.set_eeg_reference("average", projection=True)
@@ -81,8 +97,8 @@ for subfolder in (root / "bids").glob("sub*"):
     epochs.apply_proj()
     del epochs_interp
 
-    # STEP 4: Blink rejection with ICA
-    reference = read_ica(root / "code" / "reference_ica.fif")
+    # STEP 5: Blink rejection with ICA
+    reference = read_ica(root / "code" / "reference-ica.fif")
     component = reference.labels_["blinks"]
     ica = ICA(n_components=0.999, method="fastica")
     ica.fit(epochs)
@@ -96,5 +112,14 @@ for subfolder in (root / "bids").glob("sub*"):
     )
     ica.apply(epochs, exclude=ica.labels_["blinks"])
 
-    # STEP 5: Remove post-target trials
-    if 
+    # STEP 6: Reject / repair bad epochs
+    ar = AutoReject(n_interpolate=[0, 1, 2, 4, 8, 16], n_jobs=4)
+    epochs = ar.fit_transform(epochs)
+
+    # Save the results
+    outdir = root / "preprocessed" / "subfolder.name"
+    if not outdir.exists():
+        outdir.mkdir()
+    ica.save(outdir / f"{subfolder.name}-ica.fif", overwrite=True)
+    epochs.save(outdir / f"{subfolder.name}-epo.fif", overwrite=True)
+    ar.save(outdir / f"{subfolder.name}-autoreject.h5", overwrite=True)
