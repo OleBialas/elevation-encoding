@@ -89,6 +89,8 @@ for subfolder in (root / "bids").glob("sub*"):
             )
             + 1
         )
+    if idx[-1] == len(epochs):  # if the last trial was a target remove it
+        idx = idx[:-1]
     epochs.drop(idx)
 
     # STEP 4: Apply robust average reference
