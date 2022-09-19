@@ -19,6 +19,7 @@ sentation is predictive of localization accuracy. This is, to our knowledge, the
 
 - concise summary of objectives, methodology including species and whether both sexes were included (really?)
 <!-- Do we really need to make it explicit that both sexes where studies? Seems kinda irrelevant -->
+<!-- Marc: It's the Zeitgeist; just state why it is not relevant in this case or do a statistical test for any sex differences; see commentary in https://www.nature.com/articles/d41586-022-02919-x -->
 - written in complete sentences without subheadings
 
 # Significance Statement (120 words maximum)
@@ -29,34 +30,28 @@ sentation is predictive of localization accuracy. This is, to our knowledge, the
 ## Motivation
 
 ### Sound localization is an interesting case of perceptual computation
-Unlike in the visual system, where ganglion cells in the retina provide
+Unlike in the visual system, where retinal ganglion cells provide
 a topographic representation of sensory input, hair cells in the cochlea
-respond to the frequency of sounds waves, providing a tonotopic representa-
-tion of sensory input. Since a sound’s position is not represented on the level
-of the sensory epithelium, it must be computed by the auditory system. This
-computation, which happens at a rapid pace and usually without us being
-aware of it, makes sound localization an interesting model for studying how
-the brain processes and integrates information for perception.
+provide a tonotopic representation of sound frequency. Since sound location
+is not represented on the sensory epithelium, it must be computed by the
+central auditory system. This rapid pre-attentive computation makes sound
+localization an interesting model of information processing and integration in the brain.
 
-### Elevation is where our understanding is lacking the most
-Today we have a good understanding of the sound localization cues which determine our auditory
-sense of direction. Based on these cues, we can determine a sound source’s
-azimuth and elevation, which deﬁne a point’s location in a spherical coor-
-dinate system. We also have a pretty detailed picture of the different neu-
-ral circuits implemented in the brainstem, extracting localization cues from
-auditory input and integrating them into a representation of space. How-
-ever, knowledge about the encoding of auditory space becomes increasingly
-scarce as we ascend the auditory pathway to the cortex, especially what con-
-cerns sound source elevation.
+### Elevation is where our understanding is lacking the most (Marc: too strong (f.i. distance is much less understood...))
+The acoustic cues that convey the location of a sound source in the horizontal (azimuth) and
+vertical planes (elevation) are well understood. The neural mechanisms that help to extract
+interaural cues for horizontal sound localization, implemented in the brainstem, and the
+representation of these cues at different stages of the ascending auditory system are also
+understood in some detail. The encoding of sound source elevation and its integration with
+source azimuth is less well understood.
 
 ### Encoding of elevation has previously not been shown in EEG
-While several studies investigated the ﬁring patterns of single neurons in response to changes in sound source elevation,
-they do not provide an explanation for the code that represents elevation
-on a population level. A recent study used functional magnetic resonance
-imaging (fMRI) to observe the cortical encoding of sound source elevation.
-However, fMRI does not measure neural activity but associated changes in
-blood oxygenation, and it also prohibits the employment of realistic sound
-localization experiments.
+While several studies investigated the ﬁring patterns of single neurons in response to
+changes in sound source elevation, they do not provide an explanation for the code that
+represents elevation on a population level. A recent study used functional magnetic resonance
+imaging (fMRI) to observe the cortical encoding of sound source elevation. However, fMRI does
+not measure neural activity but associated changes in blood oxygenation, and it requires
+virtual auditory displays.
 
 
 - objectives, background and motivation
