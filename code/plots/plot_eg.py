@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import matplotlib.transforms as mtransforms
 from scipy.stats import linregress
 
-root = Path(__file__).parent.parent.absolute()
+root = Path(__file__).parent.parent.parent.absolute()
 plt.style.use("science")
 
 
