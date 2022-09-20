@@ -1,6 +1,6 @@
 ---
 title:
-- Decoding of Evoked Responses reveals linear Encoding of Sound Source Elevation in Human Cortex
+- Decoding of Evoked Responses Reveals Linear Encoding of Sound Source Elevation in Human Cortex
 author:
 - Ole Bialas
 - Burkhard Maess
@@ -82,13 +82,15 @@ virtual auditory displays.
 ## Behavior
 We quantiﬁed each subject’s localization accuracy as elevation gain (EG), which is the slope of the regression between the actual and perceived sound source elevation [@hofman1998]. An EG of 1 indicates perfect localization (discounting symmetric deviations around the mean), while an EG of 0 indicates that the subject responded randomly. The initial localization tests showed that subjects could determine the sounds' elevation accurately, indicated by an EG of $X$ in experiment I and an EG of $Y$ in experiment II (note that the responses where obtained with a different method in both experiments). While the EGs we observed are lower compared to previous reports on free field sound localization [@makous1990, hofman1998], this is likely due to the much shorter training that subjects received in our study.
 
-<!-- One figure for behavior that includes elevation gain for localization tests, elevation gain from experiment II and hitrates from experiment I-->
+![Linear regression between the target's elevation and the subject's response. (A) and (B): data from the localization tests preceding each experiment. (C) data from the behavioral task during the second experiment. Each gray line represents one subject's responses and the red line indicates the
+group average.](figures/eg.png)
+
 
 # Discussion (1,500 words maximum, including citations)
 - brief statement of the principal findings
 - validity and significance in the light of other published work
 - extensive discussion of the litertaure is discouraged
 
-# References
+[#](#) References
 - only use published, preprint and in-press references
 - references shoudl be ordered alphabetical by first author surname

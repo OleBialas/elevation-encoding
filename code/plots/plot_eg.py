@@ -74,6 +74,10 @@ for eg, axes in zip(mean_eg, ax):
 
 [a.set(adjustable='box', aspect='equal') for a in ax]
 
+print(f"loctest I: EG={np.mean(b_loc1). SD={np.std(b_loc1)}")
+print(f"loctest II: EG={np.mean(b_loc2). SD={np.std(b_loc2)}")
+print(f"experiment II: EG={np.mean(b_exp2). SD={np.std(b_exp2)}")
+
 plt.savefig(root/'paper'/'figures'/'eg.png', dpi=800)
 
 
