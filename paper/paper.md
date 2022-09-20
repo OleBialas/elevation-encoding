@@ -28,14 +28,13 @@ sentation is predictive of localization accuracy. This is, to our knowledge, the
 # Introduction (650 words maximum, including citations)
 
 ## Motivation
+Unlike in the visual system, where retinal ganglion cells provide a topographic representation of sensory input, hair cells in the cochlea provide a tonotopic representation of sound frequency. Since sound location is not represented on the sensory epithelium, it must be computed by the central auditory system. This rapid pre-attentive computation makes sound localization an interesting model of information processing and integration in the brain.
 
-### Sound localization is an interesting case of perceptual computation
-Unlike in the visual system, where retinal ganglion cells provide
-a topographic representation of sensory input, hair cells in the cochlea
-provide a tonotopic representation of sound frequency. Since sound location
-is not represented on the sensory epithelium, it must be computed by the
-central auditory system. This rapid pre-attentive computation makes sound
-localization an interesting model of information processing and integration in the brain.
+## Psychophysics of sound localization
+When sound impinges on the ear from one side, the head shadows the averted ear from the sound. The acoustic shadow dampens the sound, resulting in an interaural level difference (ILD). Additionally, the variation in traveling distance creates an interaural time difference (ITD) between the sounds
+arriving at both ears. These interaural cues uniquely determine a sound's the azimuth within the frontal field. A sound's elevation on the other hand, is inferred from the spectral pattern that results from direction-dependent filtering trough the head and pinnae. Consequently, the auditory system must learn a representation of one's head-related transfer transfer function (HRTF) to map the filtered spectrum to an elevation. 
+
+
 
 ### Elevation is where our understanding is lacking the most (Marc: too strong (f.i. distance is much less understood...))
 The acoustic cues that convey the location of a sound source in the horizontal (azimuth) and
@@ -72,18 +71,25 @@ virtual auditory displays.
 - encouraged to report all data in histograms, scatter plots etc.
 - where can the data be accessed?
 
-# Code/Software
-- statement about code central to the conclusions in section headed "Code Accessibility"
-- when possible use research resource identifiers (RRIDs) and URLs to specifiy software packages etc.
+# Data and Code Availability
+The raw data as well as the analysis code can be obtained from an online repository (github.com/OleBialas/elevation-encoding.git).
 
 # Results
-<!-- Should we organize results by kind of data / analysis (e.g. behavior, decoding etc.) or by experiment? I think kind of data/analysis makes more sense because otherwise we would have a really short section for Experiment I and really long section for Experiment II -->
 
 ## Behavior
-We quantiﬁed each subject’s localization accuracy as elevation gain (EG), which is the slope of the regression between the actual and perceived sound source elevation [@hofman1998]. An EG of 1 indicates perfect localization (discounting symmetric deviations around the mean), while an EG of 0 indicates that the subject responded randomly. The initial localization tests showed that subjects could determine the sounds' elevation accurately, indicated by an EG of $X$ in experiment I and an EG of $Y$ in experiment II (note that the responses where obtained with a different method in both experiments). While the EGs we observed are lower compared to previous reports on free field sound localization [@makous1990, hofman1998], this is likely due to the much shorter training that subjects received in our study.
+We quantified each subject’s localization accuracy as elevation gain (EG), which is the slope of the regression between the actual and perceived sound source elevation [@hofman1998]. An EG of 1 indicates perfect localization (discounting symmetric deviations around the mean), while an EG of 0
+indicates that the subject responded randomly. The initial localization tests showed that subjects could determine the sounds' elevation accurately, indicated by an EG of $0.68 (SD=0.25)$ in the test preceding experiment I and an EG of $0.78 (SD=0.13)$ in the test preceding experiment II (note that subject responses where obtained with different methods). While the EGs we observed are lower compared to previous reports on free field sound localization [@makous1990, @hofman1998], this is likely due to the much shorter training that subjects received in our study.
+
+The average EG for the behavioral task in experiment II was $0.45 (SD=0.26$, significantly lower than the EG measured during the prior localization test (paired-samples t-test: $t(30)=6.05, p<0.001$). We expected a decrease in performance because the continuous display of sounds and uncertainty
+about which stimuli were targets made the task much more difficult. Despite the decrease in accuracy, most subject's response was clearly modulated by the target's position, indicating that they were able to perceive elevation.
 
 ![Linear regression between the target's elevation and the subject's response. (A) and (B): data from the localization tests preceding each experiment. (C) data from the behavioral task during the second experiment. Each gray line represents one subject's responses and the red line indicates the
 group average.](figures/eg.png)
+
+## Evoked Responses
+
+
+## Decoding
 
 
 # Discussion (1,500 words maximum, including citations)
@@ -91,6 +97,3 @@ group average.](figures/eg.png)
 - validity and significance in the light of other published work
 - extensive discussion of the litertaure is discouraged
 
-[#](#) References
-- only use published, preprint and in-press references
-- references shoudl be ordered alphabetical by first author surname

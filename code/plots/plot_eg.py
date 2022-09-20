@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.transforms as mtransforms
-from scipy.stats import linregress
+from scipy.stats import linregress, ttest_rel
 
 root = Path(__file__).parent.parent.parent.absolute()
 plt.style.use("science")
@@ -74,9 +74,12 @@ for eg, axes in zip(mean_eg, ax):
 
 [a.set(adjustable='box', aspect='equal') for a in ax]
 
-print(f"loctest I: EG={np.mean(b_loc1). SD={np.std(b_loc1)}")
-print(f"loctest II: EG={np.mean(b_loc2). SD={np.std(b_loc2)}")
-print(f"experiment II: EG={np.mean(b_exp2). SD={np.std(b_exp2)}")
+print(f"loctest I: EG={np.mean(b_loc1)}, SD={np.std(b_loc1)}")
+print(f"loctest II: EG={np.mean(b_loc2)}, SD={np.std(b_loc2)}")
+print(f"experiment II: EG={np.mean(b_exp2)}, SD={np.std(b_exp2)}")
+
+print(f'paired samples ttest with {len(b_loc2)} df:')
+print(ttest_rel(b_loc2, b_exp2))
 
 plt.savefig(root/'paper'/'figures'/'eg.png', dpi=800)
 
