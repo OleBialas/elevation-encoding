@@ -1,27 +1,45 @@
-import sys
 from pathlib import Path
-import argparse
+import re
 import numpy as np
+from mne import read_epochs
 from mne.stats import permutation_cluster_test
 from mne.channels import find_ch_adjacency
-root = Path(__file__).parent.parent.absolute()
-sys.path.append(str(root/"code"))
-from utils import get_epochs
-parser = argparse.ArgumentParser()
-parser.add_argument("subject", type=str)
-parser.add_argument("n_permutations", type=int, default=1000)
-args = parser.parse_args()
 
-epochs = get_epochs(args.subject)
-event_ids = list(epochs.event_id.values())
-adjacency = find_ch_adjacency(epochs.info, "eeg")[0]
-indices = [np.where(
-    epochs.events[:, 2] == event_id)[0] for event_id in event_ids]
-data = [epochs.get_data()[idx, :, :].transpose(0, 2, 1) for idx in indices]
-T_obs, clusters, cluster_p_values, H0 = \
-    permutation_cluster_test(data,
-                             n_permutations=args.n_permutations, adjacency=adjacency)
-dat = {"statistic": T_obs, "clusters": clusters,
-        "clusters_p": cluster_p_values}
-np.save(
-    root/"freefield"/"output"/args.subject/"permutation_test_results.npy", dat)
+root = Path(__file__).parent.parent.absolute()
+n_permutations = 10000
+
+
+def run_cluster_test(epochs, event_ids):
+    """Run a cluster test on `epochs` comparing the conditions in `event_ids`."""
+    # get the trials corresponding to the different stimuli
+    adjacency = find_ch_adjacency(epochs.info, "eeg")[0]
+    indices = [np.where(epochs.events[:, 2] == event_id)[0] for event_id in event_ids]
+    data = [epochs.get_data()[idx, :, :].transpose(0, 2, 1) for idx in indices]
+    T_obs, clusters, cluster_p_values, H0 = permutation_cluster_test(
+        data, n_permutations=n_permutations, adjacency=adjacency
+    )
+    return {"statistic": T_obs, "clusters": clusters, "clusters_p": cluster_p_values}
+
+
+for subfolder in (root / "preprocessed").glob("sub-*"):
+    epochs = read_epochs(subfolder / f"{subfolder.name}-epo.fif")
+    outfolder = root / "results" / subfolder.name
+    if not outfolder.exists():
+        outfolder.mkdir()
+    if int(re.search(r"\d+", subfolder.name).group()) < 100:
+        # first, compare same adapter different probe
+        names = ["a+375", "a-375"]
+        comparisons = [[4, 5, 6], [7, 8, 9]]
+        for event_ids, name in zip(comparisons, names):
+            result = run_cluster_test(epochs, event_ids)
+            np.save(outfolder / f"{subfolder.name}_{name}_cluster.npy", result)
+        # next, compare same probe different adapter
+        names = ["p+125", "p-125"]
+        comparisons = [[4, 8], [5, 9]]
+        for event_ids, name in zip(comparisons, names):
+            result = run_cluster_test(epochs, event_ids)
+            np.save(outfolder / f"{subfolder.name}_{name}_cluster.npy", result)
+    else:  # for experiment II, just run a single cluster test
+        event_ids = list(epochs.event_id.values())
+        result = run_cluster_test(epochs, event_ids)
+        np.save(outfolder / f"{subfolder.name}_cluster.npy", result)
