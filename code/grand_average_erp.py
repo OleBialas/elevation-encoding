@@ -19,5 +19,5 @@ evoked2 = grand_average(evokeds2)
 evoked2.info["bads"].append("F1")
 evoked2.interpolate_bads()
 
-evokeds1.save(root / "results" / "grand_averageI-evo.fif")
-evokeds2.save(root / "results" / "grand_averageII-evo.fif")
+evoked1.save(root / "results" / "grand_averageI-evo.fif")
+evoked2.save(root / "results" / "grand_averageII-evo.fif")
