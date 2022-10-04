@@ -106,15 +106,17 @@ The raw data as well as the analysis code can be obtained from an online reposit
 
 ## Behavior
 We quantified each subject’s localization accuracy as elevation gain (EG), which is the slope of the regression between the actual and perceived sound source elevation [@hofman1998]. An EG of 1 indicates perfect localization (discounting symmetric deviations around the mean), while an EG of 0
-indicates that the subject responded randomly. The initial localization tests showed that subjects could determine the sounds' elevation accurately, indicated by an EG of $0.68 (SD=0.25)$ in the test preceding experiment I and an EG of $0.78 (SD=0.13)$ in the test preceding experiment II (\ref{eg} A&B). While the EGs we observed are lower compared to previous reports on free field sound localization [@makous1990, @hofman1998], this is likely due to the much shorter training that subjects received in our study.
+indicates that the subject responded randomly. The initial localization tests showed that subjects could determine the sounds' elevation accurately, indicated by an EG of $0.68 (SD=0.25)$ in the test preceding experiment I and an EG of $0.78 (SD=0.13)$ in the test preceding experiment II
+(Fig.\ref{eg} A and B). While the EGs we observed are lower compared to previous reports on free field sound localization [@makous1990, @hofman1998], this is likely due to the much shorter training that subjects received in our study.
 
-The average EG for the behavioral task in experiment II was $0.45 (SD=0.26$, significantly lower than the EG measured during the prior localization test (paired-samples t-test: $t(30)=6.05, p<0.001$). We expected a decrease in performance because the continuous display of sounds and uncertainty
+The average EG for the behavioral task in experiment II (Fig.\ref{eg}) was $0.45 (SD=0.26$, significantly lower than the EG measured during the prior localization test (paired-samples t-test: $t(30)=6.05, p<0.001$). We expected a decrease in performance because the continuous display of sounds and uncertainty
 about which stimuli were targets made the task much more difficult. Despite the decrease in accuracy, most subject's response was clearly modulated by the target's position, indicating that they were able to perceive elevation.
 
-![Linear regression between the target's elevation and the subject's response. (A) and (B): data from the localization tests preceding each experiment. (C) data from the behavioral task during the second experiment. Each gray line represents one subject's responses and the red line indicates the
-group average.\label{eg}](figures/eg.png)
+![Linear regression between the target's elevation and the subject's response. (A) and (B): data from the localization tests preceding each experiment. (C) data from the behavioral task during the second experiment. Each gray line represents one subject's responses and the red line indicates the group average.\label{eg}](figures/eg.png)
 
 ## Evoked Responses
+![Average evoked response from experiment II. (A)-(D): distribution of voltage across the scalp at the time points marked by dashed lines in the ERP. (E): Average voltage across time at each channel with Fz highlighted. The fist red line marks the onset of the adapter, the second the transition to the probe. (F): resuts from the perumutation test where color encodes the number of subjects for whom aparticular sample was part of a significant cluster.\label{erp}](figures/erp.png)
+
 
 
 ## Decoding
