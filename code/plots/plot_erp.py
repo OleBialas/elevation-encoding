@@ -66,4 +66,19 @@ ax["c1"].sharex(ax["b1"])
 ax["b1"].set(ylabel="Amplitude [\u03BCV]")
 plt.setp(ax["b1"].get_xticklabels(), visible=False)
 ax["c1"].set(yticks=[], xlabel="Time [s]")
+
+# figure labeling
+for label, axes in zip(["A", "B", "C", "D", "E", "F"], list(ax.values())):
+    trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
+    axes.text(
+        0.0,
+        1.0,
+        label,
+        transform=axes.transAxes + trans,
+        fontsize="medium",
+        verticalalignment="top",
+        fontfamily="serif",
+    )
+
+
 plt.savefig(root / "paper" / "figures" / "erp.png", dpi=800)
