@@ -93,13 +93,10 @@ for subfolder in (root / "bids").glob("sub*"):
         idx = idx[:-1]
     epochs.drop(idx)
 
-    # STEP 4: Apply robust average reference
+    # STEP 4: interpolate bad channels and re-reference to average
     r = Ransac(n_jobs=4)
-    epochs_interp = r.fit_transform(epochs)
-    epochs_interp.set_eeg_reference("average", projection=True)
-    epochs.add_proj(epochs_interp.info["projs"])
-    epochs.apply_proj()
-    del epochs_interp
+    epochs = r.fit_transform(epochs)
+    epochs.set_eeg_reference("average")
 
     # STEP 5: Blink rejection with ICA
     reference = read_ica(root / "code" / "reference-ica.fif")

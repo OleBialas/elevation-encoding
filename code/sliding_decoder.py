@@ -10,7 +10,9 @@ from mne.decoding import SlidingEstimator, cross_val_multiscore
 root = Path(__file__).parent.parent.absolute()
 n_crossval = 100
 
-for subfolder in (root / "preprocessed").glob("sub-1*"):
+subfolders = list((root / "preprocessed").glob("sub-1*"))
+
+for subfolder in subfolders:
     epochs = read_epochs(subfolder / f"{subfolder.name}-epo.fif")
     events, event_id = epochs.events, epochs.event_id
     n_times = len(epochs.times)
