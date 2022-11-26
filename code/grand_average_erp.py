@@ -16,7 +16,7 @@ for subfolder in (root / "preprocessed").glob("sub-*"):
         evokeds2.append(epochs.average())
 evoked1 = grand_average(evokeds1)
 evoked2 = grand_average(evokeds2)
-evoked2.info["bads"].append("F1")
+# evoked2.info["bads"].append("F1")
 evoked2.interpolate_bads()
 
 evoked1.save(root / "results" / "grand_averageI-evo.fif")
