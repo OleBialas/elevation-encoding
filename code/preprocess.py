@@ -25,13 +25,13 @@ epoch_parameters_epx1 = [
     -0.1,
     1.5,
     {
-        "37.5 to 12.5": 4,
-        "37.5 to -12.5": 5,
-        "37.5 to -37.5": 6,
-        "-37.5 to 37.5": 7,
-        "-37.5 to 12.5": 8,
-        "-37.5 to -12.5": 9,
-        "deviant": 10,
+        "37.5 to 12.5": 4,  # Stimulus/S 1
+        "37.5 to -12.5": 5,  # Stimulus/S 2
+        "37.5 to -37.5": 6,  # Stimulus/S 3
+        "-37.5 to 37.5": 7,  # Stimulus/S 4
+        "-37.5 to 12.5": 8,  # Stimulus/S 5
+        "-37.5 to -12.5": 9,  # Stimulus/S 6
+        "deviant": 10,  # Stimulus/S 7
     },
 ]
 
