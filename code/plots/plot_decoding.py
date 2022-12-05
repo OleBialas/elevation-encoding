@@ -15,6 +15,10 @@ def convna(x):
     return
 
 
+def line(x, a, b):
+    return a + x * b
+
+
 plt.style.use(["science", "no-latex"])
 root = Path(__file__).parent.parent.parent
 subjects = list((root / "results").glob("sub-1*"))
@@ -24,12 +28,12 @@ evoked = read_evokeds(root / "results" / "grand_averageII-evo.fif")[0]
 idx_acc = (np.argmin(np.abs(evoked.times - 1.2)), np.argmin(np.abs(evoked.times - 1.5)))
 
 group_data = {  # actual data
-    "37.5 vs 12.5": np.zeros((27, 205)),
-    "37.5 vs -12.5": np.zeros((27, 205)),
-    "37.5 vs -37.5": np.zeros((27, 205)),
-    "12.5 vs -12.5": np.zeros((27, 205)),
-    "12.5 vs -37.5": np.zeros((27, 205)),
-    "-12.5 vs -37.5": np.zeros((27, 205)),
+    "37.5 vs 12.5": np.zeros((len(subjects), 205)),
+    "37.5 vs -12.5": np.zeros((len(subjects), 205)),
+    "37.5 vs -37.5": np.zeros((len(subjects), 205)),
+    "12.5 vs -12.5": np.zeros((len(subjects), 205)),
+    "12.5 vs -37.5": np.zeros((len(subjects), 205)),
+    "-12.5 vs -37.5": np.zeros((len(subjects), 205)),
 }
 group_data_resampled = {  # data after bootstrapping
     "37.5 vs 12.5": np.zeros((n_permute, 205)),
@@ -59,6 +63,7 @@ for i in range(count):
     sub_acc = []
     for key in group_data:
         sub_acc.append(group_data[key][i, idx_acc[0] : idx_acc[1]].mean())
+        print(i, sub_acc[-1])
     acc.append(np.mean(sub_acc))
 
 
@@ -76,10 +81,16 @@ for subfolder in (root / "bids").glob("sub-1*"):
         data = data[~np.isnan(data[:, 1])]
         b, _, _, _, _ = linregress(data[:, 0], data[:, 1])
         eg_task.append(b)
+eg_task = np.asarray(eg_task)
+eg_task[eg_task < 0] = 0  # set negative EGs to 0
+b, a, r, p, _ = linregress(eg_task, acc)
 
-fig, ax = plt.subplot_mosaic([["a1", "a1"], ["b1", "b2"], ["c1", "c1"]])
+fig, ax = plt.subplot_mosaic([["a1", "a1"], ["b1", "b1"], ["c1", "c1"]])
 divider = make_axes_locatable(ax["a1"])
 ax["a2"] = divider.append_axes("right", size="100%", pad=0.1)
+divider = make_axes_locatable(ax["b1"])
+ax["b2"] = divider.append_axes("right", size="100%", pad=0)
+ax["b1"].get_shared_y_axes().join(ax["b1"], ax["b2"])
 for key, data in group_data_resampled.items():
     mean, std = data.mean(axis=0), data.std(axis=0)
     # apply filter for smoothing
@@ -91,7 +102,7 @@ ax["a1"].legend(loc="upper left", fontsize="x-small", ncol=2)
 ax["a1"].spines["right"].set_visible(False)
 ax["a2"].spines["left"].set_visible(False)
 ax["a1"].set(
-    ylabel="Accuracy [a.u.c]",
+    ylabel="Accuracy [AUC]",
     xlabel="Time [s]",
     xlim=(-0.1, 0.4),
     xticks=[-0.1, 0, 0.1, 0.2, 0.3],
@@ -113,5 +124,10 @@ ax["a2"].plot((-d / 2, +d / 2), (-d, +d), **kwargs)
 ax["b1"].hist(eg_test, label="test", alpha=0.7)
 ax["b1"].hist(eg_task, label="task", alpha=0.7)
 ax["b1"].legend(loc="upper left", fontsize="small")
-
+ax["b1"].set(ylabel="N subjects", xlabel="Elevation gain [b]")
 ax["b2"].hist(acc)
+ax["b2"].set(xticks=[], xlabel="Accuracy [AUC]")
+
+ax["c1"].scatter(eg_task, acc, color="black")
+eg_range = np.linspace(0, 1, 10)
+ax["c1"].plot(eg_range, line(eg_range, a, b), color="black")
