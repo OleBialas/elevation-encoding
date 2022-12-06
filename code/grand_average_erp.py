@@ -28,7 +28,7 @@ evoked2_conditions = list(evoked2_conditions.values())
 evoked1.save(root / "results" / "grand_averageI-ave.fif", overwrite=True)
 evoked2.save(root / "results" / "grand_averageII-ave.fif", overwrite=True)
 write_evokeds(
-    evoked2_conditions,
     root / "results" / "grand_averageII_conditions-ave.fif",
+    evoked2_conditions,
     overwrite=True,
 )
