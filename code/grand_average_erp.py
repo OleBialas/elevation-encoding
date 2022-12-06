@@ -3,7 +3,7 @@ Compute a linear tuning curve for each subject
 """
 import re
 from pathlib import Path
-from mne import grand_average, read_epochs
+from mne import grand_average, read_epochs, write_evokeds
 
 root = Path(__file__).parent.parent.absolute()
 
@@ -27,6 +27,8 @@ evoked2_conditions = list(evoked2_conditions.values())
 
 evoked1.save(root / "results" / "grand_averageI-ave.fif", overwrite=True)
 evoked2.save(root / "results" / "grand_averageII-ave.fif", overwrite=True)
-evoked2_conditions.save(
-    root / "results" / "grand_averageII_conditions-ave.fif", overwrite=True
+write_evokeds(
+    evoked2_conditions,
+    root / "results" / "grand_averageII_conditions-ave.fif",
+    overwrite=True,
 )
