@@ -25,25 +25,12 @@ def run_cluster_test(epochs, event_ids):
 
 for subfolder in (root / "preprocessed").glob("sub-*"):
     epochs = read_epochs(subfolder / f"{subfolder.name}-epo.fif")
-    if int(subfolder.name[-3:]) < 100:
-        epochs.crop(None, 1.0)
     outfolder = root / "results" / subfolder.name
     if not outfolder.exists():
         outfolder.mkdir()
     if int(re.search(r"\d+", subfolder.name).group()) < 100:
-        # first, compare same adapter different probe
-        names = ["a+375", "a-375"]
-        comparisons = [[4, 5, 6], [7, 8, 9]]
-        for event_ids, name in zip(comparisons, names):
-            result = run_cluster_test(epochs, event_ids)
-            np.save(outfolder / f"{subfolder.name}_{name}_cluster.npy", result)
-        # next, compare same probe different adapter
-        names = ["p+125", "p-125"]
-        comparisons = [[4, 8], [5, 9]]
-        for event_ids, name in zip(comparisons, names):
-            result = run_cluster_test(epochs, event_ids)
-            np.save(outfolder / f"{subfolder.name}_{name}_cluster.npy", result)
+        event_ids = [4, 5, 6, 7, 8, 9]
     else:  # for experiment II, just run a single cluster test
         event_ids = list(epochs.event_id.values())
-        result = run_cluster_test(epochs, event_ids)
-        np.save(outfolder / f"{subfolder.name}_cluster.npy", result)
+    result = run_cluster_test(epochs, event_ids)
+    np.save(outfolder / f"{subfolder.name}_cluster.npy", result)
