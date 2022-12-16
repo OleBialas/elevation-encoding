@@ -10,17 +10,18 @@ average topography
 from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
-from mne.viz import plot_topomap
-from mne.io import read_info
+from mne import read_epochs
 
 root = Path(__file__).parent.parent.absolute()
-info = read_info(root / "preprocessed" / "sub-100" / "sub-100-epo.fif")
+epochs = read_epochs(root / "preprocessed" / "sub-100" / "sub-100-epo.fif")
+info, times = epochs.info, epochs.times
+del epochs
 subfolders = list((root / "results").glob("sub*"))
 subfolders.sort()
 
-# Cumulative F-score and p-value of each subjet's largest cluster
-clustersI = np.zeros((23, 2))
-clustersII = np.zeros((30, 2))
+# Cumulative F-score, p-value, start and stop, of each subjet's largest cluster
+clustersI = np.zeros((23, 4))
+clustersII = np.zeros((30, 4))
 # Topographical distribution of significant clusters
 topoI = np.zeros(64)
 topoII = np.zeros(64)
@@ -34,6 +35,7 @@ for isub, subfolder in enumerate(subfolders):  # experiment I
     for ic, c in enumerate(clusters):  # get the mass of each cluster
         mass[ic] = F[c].sum()
     idx = np.argmax(mass)
+    tmin, tmax = times[clusters[idx][0].min()], times[clusters[idx][0].max()]
     if p[idx] < 0.05:
         # calculate each channel's cumulative F-value in the significant cluster
         topo = F[np.unique(clusters[idx][0]), :].sum(axis=0)
@@ -41,10 +43,10 @@ for isub, subfolder in enumerate(subfolders):  # experiment I
     else:
         topo = np.zeros(64)
     if isub < 23:
-        clustersI[isub] = (mass[idx], p[idx])
+        clustersI[isub] = (mass[idx], p[idx], tmin, tmax)
         topoI += topo
     else:
-        clustersII[isub - 23] = (mass[idx], p[idx])
+        clustersII[isub - 23] = (mass[idx], p[idx], tmin, tmax)
         topoII += topo
 
 # normalize the topo-plots
