@@ -1,3 +1,7 @@
+""" For each experiment, plot the average evoked response a color bar indicating
+the number of significant clusters across time, the topo map of F-scores and the
+ERP for each condition at the most significant channel.
+"""
 from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt, patches
@@ -6,14 +10,42 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mne import read_evokeds
 from mne.viz import plot_topomap
 
-
 root = Path(__file__).parent.parent.parent.absolute()
 plt.style.use(["science", "no-latex"])
+
+for exp in ["I", "II"]:
+    evoked = read_evokeds(root / "results" / f"grand_average{exp}-ave.fif")[0]
+    if exp == "I":
+        evoked.crop(None, 1.0)
+    clusters = np.loadtxt(root / "results" / f"clusters{exp}.csv")
+    clusters = clusters[clusters[:, 1] < 0.05]  # select significant clusters
+    ftopo = np.load(root / "results" / f"ftopo{exp}.npy")
+    ch = np.argmax(ftopo)  # channel with the largest effect
+    # color bar indicating significant clusters over time
+    significance = np.zeros(len(evoked.times))
+    for i, t in enumerate(evoked.times):
+        significance[i] = np.logical_and(t >= clusters[:, 2], t <= clusters[:, 3]).sum()
+
+    fig, ax = plt.subplot_mosaic(
+        [["1", "1", "1", "2"]],
+        figsize=(10, 6),
+    )
+    divider = make_axes_locatable(ax["1"])
+    ax["3"] = divider.append_axes("bottom", size="15%", pad=1)
+
+    for ichan in range(evoked.data.shape[0]):
+        ax["1"].plot(
+            evoked.times - 0.6, evoked.data[ichan, :] * 1e6, color="gray", linewidth=0.3
+        )
+    ax["1"].plot(  # highlight the most significant channel
+        evoked.times - 0.6, evoked.data[ch, :] * 1e6, color="black", linewidth=1.5
+    )
+
 
 topo_width = 1  # number of samples to average for a topo plot
 topo_times = [1.1, 1.2, 1.3, 1.4]  # times for the EEG topoplot
 ftopo_time = [1.2, 1.5]  # start and stop for the f-score topoplot
-evoked = read_evokeds(root / "results" / "grand_averageII-evo.fif")[0]
+evoked = read_evokeds(root / "results" / "grand_averageII-ave.fif")[0]
 xticknames = np.arange(0, 1.6, 0.2)
 xticks = [np.argmin(np.abs(evoked.times - t)) for t in xticknames]
 fz = np.where(np.asarray(evoked.info["ch_names"]) == "Cz")[0][0]
