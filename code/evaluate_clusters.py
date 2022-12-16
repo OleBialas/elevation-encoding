@@ -55,5 +55,5 @@ topoII /= (clustersII[:, 1] < 0.05).sum()
 
 np.save(root / "results" / "ftopoI.npy", topoI)
 np.save(root / "results" / "ftopoII.npy", topoII)
-np.savetxt(root / "results" / "clustersI.csv", topoI)
-np.savetxt(root / "results" / "clustersII.csv", topoI)
+np.savetxt(root / "results" / "clustersI.csv", clustersI)
+np.savetxt(root / "results" / "clustersII.csv", clustersII)
