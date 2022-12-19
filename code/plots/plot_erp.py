@@ -25,9 +25,11 @@ for exp in ["I", "II"]:
         [con.crop(None, 1.0) for con in conditions]
         adapter_dur = 0.6
         probe_dur = 0.15
+        tmin, tmax = 0.1, 0.3  # time interval for ftopo, regression
     else:
         adapter_dur = 1.0
         probe_dur = 0.1
+        tmin, tmax = 0.15, 0.75  # time interval for ftopo, regression
 
     # get the intesity of adapter and probe
     adapter_n = round(adapter_dur * evoked.info["sfreq"])
@@ -112,7 +114,7 @@ for exp in ["I", "II"]:
                 linewidth=2,
                 label=f"{probe}\u00b0",
             )
-    ax["1"].legend()
+    ax["1"].legend(loc="upper right")
     ax["1"].set(
         ylabel="Amplitude [\u03BCV]",
         xlim=((evoked.times - adapter_dur).min(), (evoked.times - adapter_dur).max()),

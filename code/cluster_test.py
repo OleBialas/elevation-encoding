@@ -18,9 +18,15 @@ def run_cluster_test(epochs, event_ids):
     indices = [np.where(epochs.events[:, 2] == event_id)[0] for event_id in event_ids]
     data = [epochs.get_data()[idx, :, :].transpose(0, 2, 1) for idx in indices]
     T_obs, clusters, cluster_p_values, H0 = permutation_cluster_test(
-        data, n_permutations=n_permutations, adjacency=adjacency
+        data, n_permutations=n_permutations, adjacency=adjacency, n_jobs=4
     )
-    return {"statistic": T_obs, "clusters": clusters, "clusters_p": cluster_p_values}
+    return {
+        "f": T_obs,
+        "clusters": clusters,
+        "p": cluster_p_values,
+        "fs": epochs.info["sfreq"],
+        "t": epochs.times,
+    }
 
 
 for subfolder in (root / "preprocessed").glob("sub-*"):
