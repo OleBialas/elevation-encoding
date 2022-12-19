@@ -2,15 +2,20 @@
 the number of significant clusters across time, the topo map of F-scores and the
 ERP for each condition at the most significant channel.
 """
+import sys
 from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt, patches
 import matplotlib.transforms as mtransforms
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.stats import linregress
 from mne import read_evokeds
 from mne.viz import plot_topomap
 
 root = Path(__file__).parent.parent.parent.absolute()
+sys.path.append(str(root / "code"))
+from group_statistics import get_ftopo, get_encoding
+
 plt.style.use(["science", "no-latex"])
 colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 ramp_dur = 4  # duration of ramp for adapter and probe in image
@@ -57,12 +62,15 @@ for exp in ["I", "II"]:
     )
     clusters = np.loadtxt(root / "results" / f"clusters{exp}.csv")
     clusters = clusters[clusters[:, 1] < 0.05]  # select significant clusters
+    # ftopo = get_ftopo(tmin, tmax, exp)
     ftopo = np.load(root / "results" / f"ftopo{exp}.npy")
+
     ch = np.argmax(ftopo)  # channel with the largest effect
     [
         con.savgol_filter(20).pick_channels([evoked.info["ch_names"][ch]])
         for con in conditions
     ]
+    # encoding = get_encoding(ch, tmin, tmax, exp)
     # color bar indicating significant clusters over time
     significance = np.zeros((1, len(evoked.times)))
     for i, t in enumerate(evoked.times):
@@ -75,8 +83,9 @@ for exp in ["I", "II"]:
     )
     divider = make_axes_locatable(ax["1"])
     ax["4"] = divider.append_axes("top", size="10%", pad=0)
-    ax["3"] = divider.append_axes("bottom", size="8%", pad=0)
+    ax["5"] = divider.append_axes("bottom", size="8%", pad=0)
 
+    # plot the topomap of f-scores
     mask = np.repeat(False, evoked.info["nchan"])
     mask[ch] = True
     plot_topomap(
@@ -86,6 +95,20 @@ for exp in ["I", "II"]:
         axes=ax["2"],
         mask=mask,
     )
+
+    # plot the change in amplitude across elevations
+    """
+    for key in encoding:
+        if exp == "I":
+            for adapter in np.unique(encoding[0, :]):
+                idx = np.where(encoding[0, :] == adapter)
+                dist = np.abs(encoding[0, idx] - encoding[1, idx]).flatten()
+                amp = encoding[2, idx].flatten()
+                b, a, r, p, stderr = linregress(dist, amp)
+        else:
+            pass
+    """
+
     for ichan in range(evoked.data.shape[0]):
         ax["1"].plot(
             evoked.times - adapter_dur,
@@ -125,12 +148,12 @@ for exp in ["I", "II"]:
         bottom=False,  # ticks along the bottom edge are off
         labelbottom=False,
     )  # labels along the bottom edge are off
-    im = ax["3"].imshow(significance, aspect="auto")
+    im = ax["5"].imshow(significance, aspect="auto")
     cax = fig.add_axes([0.7, 0.11, 0.01, 0.055])
     fig.colorbar(im, cax=cax, orientation="vertical")
     xticknames = np.arange(-0.7, 0.4, 0.2)
     xticks = [np.argmin(np.abs(evoked.times - adapter_dur - t)) for t in xticknames]
-    ax["3"].set(
+    ax["5"].set(
         yticks=[], xlabel="Time [s]", xticks=xticks, xticklabels=xticknames.round(1)
     )
     ax["1"].axvline(x=0, ymin=0, ymax=1, color="black", linestyle="--")
