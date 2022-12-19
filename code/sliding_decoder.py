@@ -31,7 +31,7 @@ for subfolder in subfolders:
         clf = make_pipeline(
             StandardScaler(), LogisticRegression(solver="lbfgs", max_iter=1000)
         )
-        decoder = SlidingEstimator(clf, scoring="roc_auc", verbose=True)
+        decoder = SlidingEstimator(clf, scoring="roc_auc", verbose=True, n_jobs=4)
         scores = cross_val_multiscore(decoder, X, y, cv=n_crossval)
         results[f"{con1} vs {con2}"] = scores
         np.save(
