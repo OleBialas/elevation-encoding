@@ -12,35 +12,129 @@ from mne.viz import plot_topomap
 
 root = Path(__file__).parent.parent.parent.absolute()
 plt.style.use(["science", "no-latex"])
+colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+ramp_dur = 4  # duration of ramp for adapter and probe in image
 
 for exp in ["I", "II"]:
     evoked = read_evokeds(root / "results" / f"grand_average{exp}-ave.fif")[0]
+    conditions = read_evokeds(
+        root / "results" / f"grand_average{exp}_conditions-ave.fif"
+    )
     if exp == "I":
         evoked.crop(None, 1.0)
+        [con.crop(None, 1.0) for con in conditions]
+        adapter_dur = 0.6
+        probe_dur = 0.15
+    else:
+        adapter_dur = 1.0
+        probe_dur = 0.1
+
+    # get the intesity of adapter and probe
+    adapter_n = round(adapter_dur * evoked.info["sfreq"])
+    probe_n = round(probe_dur * evoked.info["sfreq"]) + 1
+    start_silence = sum(evoked.times < 0)
+    stop_silence = len(evoked.times) - start_silence - adapter_n - probe_n
+    sound_dur = start_silence + adapter_n + probe_n + stop_silence
+    adapter_intensity = np.concatenate(
+        [
+            np.zeros(start_silence),
+            np.linspace(0, 1, ramp_dur),
+            np.ones(adapter_n - int(ramp_dur * 1.5)),
+            np.linspace(1, 0, ramp_dur),
+            np.zeros(probe_n + stop_silence - int(ramp_dur / 2)),
+        ]
+    )
+    probe_intensity = np.concatenate(
+        [
+            np.zeros(start_silence + adapter_n - int(ramp_dur / 2)),
+            np.linspace(0, 1, ramp_dur),
+            np.ones(probe_n - int(ramp_dur * 1.5)),
+            np.linspace(1, 0, ramp_dur),
+            np.zeros(stop_silence),
+        ]
+    )
     clusters = np.loadtxt(root / "results" / f"clusters{exp}.csv")
     clusters = clusters[clusters[:, 1] < 0.05]  # select significant clusters
     ftopo = np.load(root / "results" / f"ftopo{exp}.npy")
     ch = np.argmax(ftopo)  # channel with the largest effect
+    [
+        con.savgol_filter(20).pick_channels([evoked.info["ch_names"][ch]])
+        for con in conditions
+    ]
     # color bar indicating significant clusters over time
-    significance = np.zeros(len(evoked.times))
+    significance = np.zeros((1, len(evoked.times)))
     for i, t in enumerate(evoked.times):
-        significance[i] = np.logical_and(t >= clusters[:, 2], t <= clusters[:, 3]).sum()
+        significance[0, i] = np.logical_and(
+            t >= clusters[:, 2], t <= clusters[:, 3]
+        ).sum()
 
     fig, ax = plt.subplot_mosaic(
-        [["1", "1", "1", "2"]],
-        figsize=(10, 6),
+        [["1", "1", "1", "2"], ["1", "1", "1", "3"]], figsize=(10, 6)
     )
     divider = make_axes_locatable(ax["1"])
-    ax["3"] = divider.append_axes("bottom", size="15%", pad=1)
+    ax["4"] = divider.append_axes("top", size="10%", pad=0)
+    ax["3"] = divider.append_axes("bottom", size="8%", pad=0)
 
+    mask = np.repeat(False, evoked.info["nchan"])
+    mask[ch] = True
+    plot_topomap(
+        ftopo,
+        evoked.info,
+        show=False,
+        axes=ax["2"],
+        mask=mask,
+    )
     for ichan in range(evoked.data.shape[0]):
         ax["1"].plot(
-            evoked.times - 0.6, evoked.data[ichan, :] * 1e6, color="gray", linewidth=0.3
+            evoked.times - adapter_dur,
+            evoked.data[ichan, :] * 1e6,
+            color="gray",
+            linewidth=0.3,
         )
-    ax["1"].plot(  # highlight the most significant channel
-        evoked.times - 0.6, evoked.data[ch, :] * 1e6, color="black", linewidth=1.5
+    if exp == "I":
+        for con in conditions:
+            adapter, probe = float(con.comment.split()[0]), float(
+                con.comment.split()[2]
+            )
+            if adapter == 37.5:
+                ax["1"].plot(
+                    evoked.times - adapter_dur,
+                    con.data.flatten() * 1e6,
+                    linewidth=2,
+                    label=f"{probe}\u00b0",
+                )
+    else:
+        for con in conditions:
+            probe = con.comment
+            ax["1"].plot(
+                evoked.times - adapter_dur,
+                con.data.flatten() * 1e6,
+                linewidth=2,
+                label=f"{probe}\u00b0",
+            )
+    ax["1"].legend()
+    ax["1"].set(
+        ylabel="Amplitude [\u03BCV]",
+        xlim=((evoked.times - adapter_dur).min(), (evoked.times - adapter_dur).max()),
     )
-
+    ax["1"].tick_params(
+        axis="x",  # changes apply to the x-axis
+        which="both",  # both major and minor ticks are affected
+        bottom=False,  # ticks along the bottom edge are off
+        labelbottom=False,
+    )  # labels along the bottom edge are off
+    im = ax["3"].imshow(significance, aspect="auto")
+    cax = fig.add_axes([0.7, 0.11, 0.01, 0.055])
+    fig.colorbar(im, cax=cax, orientation="vertical")
+    xticknames = np.arange(-0.7, 0.4, 0.2)
+    xticks = [np.argmin(np.abs(evoked.times - adapter_dur - t)) for t in xticknames]
+    ax["3"].set(
+        yticks=[], xlabel="Time [s]", xticks=xticks, xticklabels=xticknames.round(1)
+    )
+    ax["1"].axvline(x=0, ymin=0, ymax=1, color="black", linestyle="--")
+    ax["4"].plot(adapter_intensity, color="black")
+    ax["4"].plot(probe_intensity, color="black")
+    ax["4"].axis("off")
 
 topo_width = 1  # number of samples to average for a topo plot
 topo_times = [1.1, 1.2, 1.3, 1.4]  # times for the EEG topoplot

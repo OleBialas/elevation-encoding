@@ -13,7 +13,7 @@ electrode_names = json.load(open(root / "code" / "electrode_names.json"))
 # tmin, tmax and event_ids for both experiments
 epoch_parameters_epx2 = [
     -0.1,
-    1.5,
+    2,
     {
         "37.5": 4,
         "12.5": 5,
@@ -47,6 +47,10 @@ for subfolder in (root / "bids").glob("sub*"):
             subfolder / "eeg" / f"{subfolder.name}_task-oneback_eeg.vhdr"
         )
         tmin, tmax, event_ids = epoch_parameters_epx2
+    outdir = root / "preprocessed" / subfolder.name
+    if not outdir.exists():
+        outdir.mkdir()
+
     raw.load_data()
     raw.set_montage("standard_1020")
     events = events_from_annotations(raw)[0]
@@ -73,7 +77,7 @@ for subfolder in (root / "bids").glob("sub*"):
     epochs.resample(128)
     del raw
 
-    # STEP 3: Remove trials and post-target trials
+    # STEP 3: Remove target and post-target trials
     if int(subfolder.name[-3:]) < 100:
         idx = np.concatenate(
             [np.where(events[:, 2] == 10)[0], np.where(events[:, 2] == 10)[0] + 1]
@@ -97,6 +101,7 @@ for subfolder in (root / "bids").glob("sub*"):
     r = Ransac(n_jobs=4)
     epochs = r.fit_transform(epochs)
     epochs.set_eeg_reference("average")
+    del r
 
     # STEP 5: Blink rejection with ICA
     reference = read_ica(root / "code" / "reference-ica.fif")
@@ -112,15 +117,11 @@ for subfolder in (root / "bids").glob("sub*"):
         threshold=0.75,
     )
     ica.apply(epochs, exclude=ica.labels_["blinks"])
+    ica.save(outdir / f"{subfolder.name}-ica.fif", overwrite=True)
+    del ica
 
     # STEP 6: Reject / repair bad epochs
     ar = AutoReject(n_interpolate=[0, 1, 2, 4, 8, 16], n_jobs=4)
     epochs = ar.fit_transform(epochs)
-
-    # Save the results
-    outdir = root / "preprocessed" / subfolder.name
-    if not outdir.exists():
-        outdir.mkdir()
-    ica.save(outdir / f"{subfolder.name}-ica.fif", overwrite=True)
     epochs.save(outdir / f"{subfolder.name}-epo.fif", overwrite=True)
     ar.save(outdir / f"{subfolder.name}-autoreject.h5", overwrite=True)
