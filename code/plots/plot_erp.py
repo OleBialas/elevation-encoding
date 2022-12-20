@@ -18,7 +18,12 @@ from group_statistics import get_ftopo, get_encoding
 
 plt.style.use(["science", "no-latex"])
 colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-ramp_dur = 4  # duration of ramp for adapter and probe in image
+ramp_dur = 1  # duration of ramp for adapter and probe in image
+
+
+def line(a, b, x):
+    return a + b * x
+
 
 for exp in ["I", "II"]:
     evoked = read_evokeds(root / "results" / f"grand_average{exp}-ave.fif")[0]
@@ -34,32 +39,9 @@ for exp in ["I", "II"]:
     else:
         adapter_dur = 1.0
         probe_dur = 0.1
-        tmin, tmax = 0.15, 0.75  # time interval for ftopo, regression
+        tmin, tmax = 0.15, 0.9  # time interval for ftopo, regression
+        ybar = -3.5
 
-    # get the intesity of adapter and probe
-    adapter_n = round(adapter_dur * evoked.info["sfreq"])
-    probe_n = round(probe_dur * evoked.info["sfreq"]) + 1
-    start_silence = sum(evoked.times < 0)
-    stop_silence = len(evoked.times) - start_silence - adapter_n - probe_n
-    sound_dur = start_silence + adapter_n + probe_n + stop_silence
-    adapter_intensity = np.concatenate(
-        [
-            np.zeros(start_silence),
-            np.linspace(0, 1, ramp_dur),
-            np.ones(adapter_n - int(ramp_dur * 1.5)),
-            np.linspace(1, 0, ramp_dur),
-            np.zeros(probe_n + stop_silence - int(ramp_dur / 2)),
-        ]
-    )
-    probe_intensity = np.concatenate(
-        [
-            np.zeros(start_silence + adapter_n - int(ramp_dur / 2)),
-            np.linspace(0, 1, ramp_dur),
-            np.ones(probe_n - int(ramp_dur * 1.5)),
-            np.linspace(1, 0, ramp_dur),
-            np.zeros(stop_silence),
-        ]
-    )
     clusters = np.loadtxt(root / "results" / f"clusters{exp}.csv")
     clusters = clusters[clusters[:, 1] < 0.05]  # select significant clusters
     # ftopo = get_ftopo(tmin, tmax, exp)
@@ -70,7 +52,6 @@ for exp in ["I", "II"]:
         con.savgol_filter(20).pick_channels([evoked.info["ch_names"][ch]])
         for con in conditions
     ]
-    # encoding = get_encoding(ch, tmin, tmax, exp)
     # color bar indicating significant clusters over time
     significance = np.zeros((1, len(evoked.times)))
     for i, t in enumerate(evoked.times):
@@ -82,7 +63,6 @@ for exp in ["I", "II"]:
         [["1", "1", "1", "2"], ["1", "1", "1", "3"]], figsize=(10, 6)
     )
     divider = make_axes_locatable(ax["1"])
-    ax["4"] = divider.append_axes("top", size="10%", pad=0)
     ax["5"] = divider.append_axes("bottom", size="8%", pad=0)
 
     # plot the topomap of f-scores
@@ -95,19 +75,6 @@ for exp in ["I", "II"]:
         axes=ax["2"],
         mask=mask,
     )
-
-    # plot the change in amplitude across elevations
-    """
-    for key in encoding:
-        if exp == "I":
-            for adapter in np.unique(encoding[0, :]):
-                idx = np.where(encoding[0, :] == adapter)
-                dist = np.abs(encoding[0, idx] - encoding[1, idx]).flatten()
-                amp = encoding[2, idx].flatten()
-                b, a, r, p, stderr = linregress(dist, amp)
-        else:
-            pass
-    """
 
     for ichan in range(evoked.data.shape[0]):
         ax["1"].plot(
@@ -138,6 +105,7 @@ for exp in ["I", "II"]:
                 label=f"{probe}\u00b0",
             )
     ax["1"].legend(loc="upper right")
+    ax["1"].hlines(y=ybar, xmin=tmin, xmax=tmax, color="black", linewidth=2)
     ax["1"].set(
         ylabel="Amplitude [\u03BCV]",
         xlim=((evoked.times - adapter_dur).min(), (evoked.times - adapter_dur).max()),
@@ -157,108 +125,4 @@ for exp in ["I", "II"]:
         yticks=[], xlabel="Time [s]", xticks=xticks, xticklabels=xticknames.round(1)
     )
     ax["1"].axvline(x=0, ymin=0, ymax=1, color="black", linestyle="--")
-    ax["4"].plot(adapter_intensity, color="black")
-    ax["4"].plot(probe_intensity, color="black")
-    ax["4"].axis("off")
-
-topo_width = 1  # number of samples to average for a topo plot
-topo_times = [1.1, 1.2, 1.3, 1.4]  # times for the EEG topoplot
-ftopo_time = [1.2, 1.5]  # start and stop for the f-score topoplot
-evoked = read_evokeds(root / "results" / "grand_averageII-ave.fif")[0]
-xticknames = np.arange(0, 1.6, 0.2)
-xticks = [np.argmin(np.abs(evoked.times - t)) for t in xticknames]
-fz = np.where(np.asarray(evoked.info["ch_names"]) == "Cz")[0][0]
-mask = np.repeat(False, 64)
-mask[fz] = True
-topo_idx = [np.argmin(np.abs(t - evoked.times)) for t in topo_times]
-f_idx = [np.argmin(np.abs(t - evoked.times)) for t in ftopo_time]
-significance = np.zeros(evoked.data.shape)
-# calculate the average F-statistic and significant temporal clusters
-subfolders = list((root / "results").glob("sub-1*"))
-for subfolder in subfolders:
-    results = np.load(
-        subfolder / f"{subfolder.name}_cluster.npy", allow_pickle=True
-    ).item()
-    sig_mask = np.zeros(evoked.data.shape)
-    idx = np.where(results["clusters_p"] < 0.05)[0]
-    for i in idx:
-        cluster = results["clusters"][i]
-        for t, ch in zip(cluster[0], cluster[1]):
-            sig_mask[ch, t] = 1
-    significance += sig_mask
-significance = significance.max(axis=0, keepdims=True)  # collapse across channels
-
-
-fig, ax = plt.subplot_mosaic(
-    [["a1", "a2", "a3", "a4"], ["b1", "b1", "b1", "b1"], ["b1", "b1", "b1", "b1"]],
-    figsize=(10, 6),
-)
-divider = make_axes_locatable(ax["b1"])
-ax["c1"] = divider.append_axes("bottom", size="15%", pad=0)
-
-for ichan in range(evoked.data.shape[0]):
-    ax["b1"].plot(
-        evoked.times, evoked.data[ichan, :] * 1e6, color="gray", linewidth=0.3
-    )
-ax["b1"].plot(  # highlight one channel
-    evoked.times, evoked.data[fz, :] * 1e6, color="black", linewidth=1.5
-)
-
-ax["b1"].axvline(x=0, ymin=-3, ymax=3, color="red")
-ax["b1"].axvline(x=1, ymin=-3, ymax=3, color="red")
-
-for ti, axname in zip(topo_idx, ["a1", "a2", "a3", "a4"]):
-    data = evoked.data[:, ti - topo_width : ti + 1 + topo_width].mean(axis=-1)
-    plot_topomap(
-        data,
-        evoked.info,
-        axes=ax[axname],
-        show=False,
-        mask_params=dict(marker="x", markersize=14, linewidth=3),
-        mask=mask,
-    )
-    ax["b1"].axvline(x=evoked.times[ti], ymin=-3, ymax=3, color="black", linestyle="--")
-
-# xgrid = evoked.times
-# ygrid = np.arange(evoked.data.shape[0])
-# im = ax["c1"].pcolormesh(xgrid, ygrid, significance)
-im = ax["c1"].imshow(significance, aspect="auto")
-# plot the colorbar
-cax = fig.add_axes([0.905, 0.11, 0.01, 0.07])
-fig.colorbar(im, cax=cax, orientation="vertical")
-
-# axis labeling
-ax["b1"].set(
-    ylabel="Amplitude [\u03BCV]", xlim=(evoked.times.min(), evoked.times.max())
-)
-ax["c1"].set(
-    yticks=[], xlabel="Time [s]", xticks=xticks, xticklabels=xticknames.round(1)
-)
-
-# figure labeling
-for label, axes in zip(["A", "B", "C", "D", "E", "F"], list(ax.values())):
-    trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
-    axes.text(
-        0.0,
-        1.0,
-        label,
-        transform=axes.transAxes + trans,
-        fontsize="medium",
-        verticalalignment="top",
-        fontfamily="serif",
-    )
-
-# Draw lines connecting the topo-plots with ERP trace
-for i, t in enumerate(topo_times):
-    arrow = patches.ConnectionPatch(
-        [0, -0.1],
-        [t, 4.2],
-        coordsA=ax[f"a{i+1}"].transData,
-        coordsB=ax["b1"].transData,
-        # Default shrink parameter is 0 so can be omitted
-        color="black",
-    )
-    fig.patches.append(arrow)
-
-
-plt.savefig(root / "paper" / "figures" / "erp.png", dpi=800)
+    ax["1"].axvline(x=-adapter_dur, ymin=0, ymax=1, color="gray", linestyle="--")
