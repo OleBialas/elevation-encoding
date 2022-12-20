@@ -30,7 +30,7 @@ for isub, subfolder in enumerate(subfolders):  # experiment I
     data = np.load(
         subfolder / f"{subfolder.name}_cluster.npy", allow_pickle=True
     ).item()
-    F, clusters, p = data.values()
+    f, clusters, p, _, _ = data.values()
     mass = np.zeros(len(clusters))
     for ic, c in enumerate(clusters):  # get the mass of each cluster
         mass[ic] = F[c].sum()
