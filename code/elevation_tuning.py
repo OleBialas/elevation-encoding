@@ -8,14 +8,14 @@ def line(a, b, x):
     return a + b * x
 
 
-root = Path(__file__).parent.parent
+root = Path(__file__).parent.parent.absolute()
 n_resample = 10000  # number of resampling for tuning curve
 n_elevations = 100  # points for sampling the linear regression
 
 for exp in ["I", "II"]:
     if exp == "I":
         subs = list((root / "preprocessed").glob("sub-0*"))
-        tmin, tmax = 0.7, 0.85
+        tmin, tmax = 0.7, 0.9
         ch = "Cz"
         x = np.stack([[25, 50, 75, 75, 50, 25] for i in range(len(subs))])
         tuning = np.zeros((n_resample, 2, n_elevations))
