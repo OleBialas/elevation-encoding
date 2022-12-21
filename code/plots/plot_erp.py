@@ -71,7 +71,7 @@ for exp in ["I", "II"]:
         ).sum()
 
     fig, ax = plt.subplot_mosaic(
-        [["1", "1", "1", "2"], ["1", "1", "1", "3"]], figsize=(10, 6)
+        [["1", "1", "1", "2"], ["1", "1", "1", "3"]], figsize=(8, 4)
     )
     plt.subplots_adjust(wspace=0.25, hspace=0.1)
     divider = make_axes_locatable(ax["1"])
@@ -204,4 +204,6 @@ for exp in ["I", "II"]:
     ):
         axis.text(x, 1, key, transform=axis.transAxes, size=10, weight="bold")
 
-    fig.savefig(root / "results" / "plots" / f"erp_exp{exp}.png", dpi=300)
+    fig.savefig(
+        root / "results" / "plots" / f"erp_exp{exp}.png", dpi=300, bbox_inches="tight"
+    )

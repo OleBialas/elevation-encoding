@@ -20,7 +20,7 @@ def line(x, a, b):
 
 
 root = Path(__file__).parent.parent.parent
-fig, ax = plt.subplot_mosaic([["A", "B"]], figsize=(10, 6))
+fig, ax = plt.subplot_mosaic([["A", "B"]], figsize=(8, 4))
 divider = make_axes_locatable(ax["B"])
 ax["C"] = divider.append_axes("top", size="20%", pad=0)
 ax["D"] = divider.append_axes("right", size="20%", pad=0)
@@ -106,4 +106,4 @@ fig.text(0.872, 0.77, "number\n of\n subjects", ha="center")
 fig.text(0.08, 0.87, "A", size=10, weight="bold")
 fig.text(0.51, 0.87, "B", size=10, weight="bold")
 
-fig.savefig(root / "results" / "plots" / "decoding.png", dpi=300)
+fig.savefig(root / "results" / "plots" / "decoding.png", dpi=300, bbox_inches="tight")
