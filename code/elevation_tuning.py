@@ -12,6 +12,8 @@ root = Path(__file__).parent.parent.absolute()
 n_resample = 10000  # number of resampling for tuning curve
 n_elevations = 100  # points for sampling the linear regression
 
+stats = np.zeros((4, 5), dtype="<U6")
+stats[0] = ["test", "slope", "r", "p", "df"]
 for exp in ["I", "II"]:
     if exp == "I":
         subs = list((root / "preprocessed").glob("sub-0*"))
@@ -43,13 +45,23 @@ for exp in ["I", "II"]:
                 data[isub, ievo] = np.mean(evo.data.flatten()[nmin:nmax])
     data *= 1e6
 
-    stats = np.zeros((4, 5), dtype="<U6")
-    stats[0] = ["test", "slope", "r", "p", "df"]
     if exp == "I":
         b, a, r, p, _ = linregress(x[:, :3].flatten(), data[:, :3].flatten())
-        stats[1] = ["expIau", str(b.round(3)), str(r.round(3)), p, str(len(data) - 2)]
+        stats[1] = [
+            "expIau",
+            str(b.round(3)),
+            str(r.round(3)),
+            str(p),
+            str(len(data) - 2),
+        ]
         b, a, r, p, _ = linregress(x[:, 3:].flatten(), data[:, 3:].flatten())
-        stats[2] = ["expIad", str(b.round(3)), str(r.round(3)), p, str(len(data) - 2)]
+        stats[2] = [
+            "expIad",
+            str(b.round(3)),
+            str(r.round(3)),
+            str(p),
+            str(len(data) - 2),
+        ]
     else:
         b, a, r, p, _ = linregress(x.flatten(), data.flatten())
         if p < 0.001:
