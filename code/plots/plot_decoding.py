@@ -95,7 +95,7 @@ ax["B"].set(
     yticks=[0.5, 0.55, 0.6, 0.65, 0.7],
 )
 
-ax["B"].text(0, 0.2, "**")
+ax["B"].text(0.15, 0.56, "**")
 ax["C"].hist(eg_task, alpha=0.5, bins=20, color="gray")
 ax["C"].set(xlim=(0, 0.85), xticks=[], yticks=[2])
 ax["D"].hist(avg_acc, bins=20, orientation="horizontal", color="gray", alpha=0.5)
