@@ -12,8 +12,8 @@ root = Path(__file__).parent.parent.absolute()
 electrode_names = json.load(open(root / "code" / "electrode_names.json"))
 # tmin, tmax and event_ids for both experiments
 epoch_parameters_epx2 = [
-    -0.1,
-    2,
+    -0.5,
+    2.5,
     {
         "37.5": 4,
         "12.5": 5,
@@ -22,7 +22,7 @@ epoch_parameters_epx2 = [
     },
 ]
 epoch_parameters_epx1 = [
-    -0.1,
+    -0.5,
     1.5,
     {
         "37.5 to 12.5": 4,  # Stimulus/S 1
@@ -74,7 +74,11 @@ for subfolder in (root / "bids").glob("sub*"):
         baseline=None,
         preload=True,
     )
-    epochs.resample(128)
+    # use raw data to compute the noise covariance
+    tmax_noise = (events[0, 0] - 1) / raw.info["sfreq"]
+    raw.crop(0, tmax_noise)
+    cov = compute_raw_covariance(raw)
+    cov.save(outdir / f"{subfolder.name}_noise-cov.fif", overwrite=True)
     del raw
 
     # STEP 3: Remove target and post-target trials
