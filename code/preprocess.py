@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 import numpy as np
-from mne import events_from_annotations
+from mne import events_from_annotations, compute_raw_covariance
 from mne.io import read_raw_brainvision
 from mne.epochs import Epochs
 from autoreject import Ransac, AutoReject
