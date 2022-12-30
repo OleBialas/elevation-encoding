@@ -115,7 +115,7 @@ ax["D"].hist(avg_acc, bins=20, orientation="horizontal", color="gray", alpha=0.5
 ax["D"].set(ylim=(0.45, 0.75), yticks=[], xticks=[2])
 
 plt.tight_layout()
-fig.text(0.872, 0.77, "number\n of\n subjects", ha="center")
+fig.text(0.95, 0.85, "number\n of\n subjects", ha="center")
 
 fig.text(0.08, 0.87, "A", size=10, weight="bold")
 fig.text(0.51, 0.87, "B", size=10, weight="bold")
