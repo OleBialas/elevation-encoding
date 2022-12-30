@@ -20,6 +20,9 @@ def line(x, a, b):
 
 
 root = Path(__file__).parent.parent.parent
+plt.style.use(["science", "no-latex"])
+colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
 fig, ax = plt.subplot_mosaic([["A", "B"]], figsize=(8, 4))
 divider = make_axes_locatable(ax["B"])
 ax["C"] = divider.append_axes("top", size="20%", pad=0)
@@ -64,13 +67,15 @@ nmax = np.argmin(np.abs(adapter_dur + tmax - evoked.times))
 avg_acc = decoding_data[:, :, nmin:nmax].mean(axis=(1, 2))
 
 # calculate regression between eg and acc with bootstrapping
-x = np.linspace(0, 0.85, 100)
-resampled = np.zeros((n_permute, len(x)))
+x = np.linspace(0, 1, 100)
+resampled_task = np.zeros((n_permute, len(x)))
+resampled_test = np.zeros((n_permute, len(x)))
 for ip in range(n_permute):
     idx = np.random.choice(len(avg_acc), len(avg_acc))
     b, a, r, p, _ = linregress(np.asarray(eg_task)[idx], np.asarray(avg_acc)[idx])
-    resampled[ip] = line(x, a, b)
-mean, std = resampled.mean(axis=0), resampled.std(axis=0)
+    resampled_task[ip] = line(x, a, b)
+    b, a, r, p, _ = linregress(np.asarray(eg_test)[idx], np.asarray(avg_acc)[idx])
+    resampled_test[ip] = line(x, a, b)
 
 # plot the data
 for ikey, key in enumerate(keys):
@@ -84,20 +89,28 @@ ax["A"].set(
     xlabel="Time [s]", ylabel="Accuracy [a.u.c.]", yticks=[0.5, 0.55, 0.6, 0.65]
 )
 
-ax["B"].scatter(eg_task, avg_acc, color="black")
-ax["B"].plot(x, mean, color="black")
-ax["B"].fill_between(x, mean + 2 * std, mean - 2 * std, color="black", alpha=0.2)
-ax["B"].set(
-    xlabel="Elevation gain [a.u.]",
-    ylabel="Mean accuracy [a.u.c.]",
-    xlim=(0, 0.85),
-    ylim=(0.45, 0.75),
-    yticks=[0.5, 0.55, 0.6, 0.65, 0.7],
-)
+for i, data in enumerate([resampled_test, resampled_task]):
+    if i == 0:
+        eg = eg_test
+    else:
+        eg = eg_task
+    mean, std = data.mean(axis=0), data.std(axis=0)
+    ax["B"].scatter(eg, avg_acc, color=colors[i])
+    ax["B"].plot(x, mean, color=colors[i])
+    ax["B"].fill_between(x, mean + 2 * std, mean - 2 * std, alpha=0.2, color=colors[i])
+    ax["B"].set(
+        xlabel="Elevation gain [a.u.]",
+        ylabel="Mean accuracy [a.u.c.]",
+        xlim=(0, 1),
+        ylim=(0.45, 0.75),
+        yticks=[0.5, 0.55, 0.6, 0.65, 0.7],
+    )
 
 ax["B"].text(0.15, 0.56, "**")
-ax["C"].hist(eg_task, alpha=0.5, bins=20, color="gray")
-ax["C"].set(xlim=(0, 0.85), xticks=[], yticks=[2])
+ax["B"].text(0.22, 0.48, "n.s.")
+ax["C"].hist(eg_test, alpha=0.5, bins=20, color=colors[0])
+ax["C"].hist(eg_task, alpha=0.5, bins=20, color=colors[1])
+ax["C"].set(xlim=(0, 1), xticks=[], yticks=[2])
 ax["D"].hist(avg_acc, bins=20, orientation="horizontal", color="gray", alpha=0.5)
 ax["D"].set(ylim=(0.45, 0.75), yticks=[], xticks=[2])
 
@@ -105,5 +118,5 @@ fig.text(0.872, 0.77, "number\n of\n subjects", ha="center")
 
 fig.text(0.08, 0.87, "A", size=10, weight="bold")
 fig.text(0.51, 0.87, "B", size=10, weight="bold")
-
+plt.tight_layout()
 fig.savefig(root / "results" / "plots" / "decoding.png", dpi=300, bbox_inches="tight")
