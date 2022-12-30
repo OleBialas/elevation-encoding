@@ -4,7 +4,7 @@ from scipy.stats import linregress
 
 root = Path(__file__).parent.parent.absolute()
 subjects = list((root / "bids").glob("sub*"))
-dev_detection, loc_expI, loc_exp_II, one_back = [], [], [], []
+dev_detection, loc_expI, loc_expII, one_back = [], [], [], []
 
 
 def convna(x):
@@ -39,15 +39,25 @@ for sub in subjects:
             usecols=(1, 2),
         )
         task = task[~np.isnan(task[:, 1])]
+        one_back.append(linregress(task[:, 0], task[:, 1])[0])
         test = np.genfromtxt(
             sub / "beh" / f"{sub.name}_task-loctest_beh.tsv",
             skip_header=1,
         )
-        test = test[~np.isnan(task[:, 1])]
+        test = test[~np.isnan(test[:, 1])]
+        loc_expII.append(linregress(test[:, 0], test[:, 1])[0])
 
 
 print(
-    f"experiment I localization task: \n mean EG: {np.mean(loc_expI)} \n standard deviation: {np.std(loc_expI)}"
+    f"experiment I localization test: \n mean EG: {np.mean(loc_expI)} \n standard deviation: {np.std(loc_expI)}"
+)
+
+print(
+    f"experiment II localization test: \n mean EG: {np.mean(loc_expII)} \n standard deviation: {np.std(loc_expII)}"
+)
+
+print(
+    f"one-back task: \n mean EG: {np.mean(one_back)} \n standard deviation: {np.std(one_back)}"
 )
 
 print(

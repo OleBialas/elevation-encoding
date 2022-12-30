@@ -9,6 +9,7 @@ average topography
 
 from pathlib import Path
 import numpy as np
+from tabulate import tabulate
 from matplotlib import pyplot as plt
 from mne import read_epochs
 
@@ -19,14 +20,15 @@ del epochs
 subfolders = list((root / "results").glob("sub*"))
 subfolders.sort()
 
-# Cumulative F-score, p-value, start and stop, of each subjet's largest cluster
-clustersI = np.zeros((23, 4))
-clustersII = np.zeros((30, 4))
+# subject ID, cumulative F-score, p-value, start and stop, of each subjet's largest cluster
+clustersI = np.zeros((23, 5))
+clustersII = np.zeros((30, 5))
 # Topographical distribution of significant clusters
 topoI = np.zeros(64)
 topoII = np.zeros(64)
 
 for isub, subfolder in enumerate(subfolders):  # experiment I
+    sub_id = int(subfolder.name.split("-")[1])
     data = np.load(
         subfolder / f"{subfolder.name}_cluster.npy", allow_pickle=True
     ).item()
@@ -43,11 +45,37 @@ for isub, subfolder in enumerate(subfolders):  # experiment I
     else:
         topo = np.zeros(64)
     if isub < 23:
-        clustersI[isub] = (mass[idx], p[idx], tmin, tmax)
+        clustersI[isub] = (sub_id, mass[idx], p[idx], tmin, tmax)
         topoI += topo
     else:
-        clustersII[isub - 23] = (mass[idx], p[idx], tmin, tmax)
+        clustersII[isub - 23] = (sub_id, mass[idx], p[idx], tmin, tmax)
         topoII += topo
+
+# generate latex tables
+clustersI[:, 1] = clustersI[:, 1].round(2)
+clustersI[:, 2] = clustersI[:, 2].round(3)
+clustersI[:, 3] = clustersI[:, 3].round(3) - 0.6
+clustersI[:, 4] = clustersI[:, 4].round(3) - 0.6
+print(
+    tabulate(
+        clustersI,
+        tablefmt="latex",
+        headers=("Subject ID", "F-score", "p-value", "Start", "Stop"),
+    )
+)
+
+clustersII[:, 1] = clustersII[:, 1].round(2)
+clustersII[:, 2] = clustersII[:, 2].round(3)
+clustersII[:, 3] = clustersII[:, 3].round(3) - 1
+clustersII[:, 4] = clustersII[:, 4].round(3) - 1
+print(
+    tabulate(
+        clustersI,
+        tablefmt="latex",
+        headers=("Subject ID", "F-score", "p-value", "Start", "Stop"),
+    )
+)
+
 
 # normalize the topo-plots
 topoI /= (clustersI[:, 1] < 0.05).sum()
@@ -55,5 +83,5 @@ topoII /= (clustersII[:, 1] < 0.05).sum()
 
 np.save(root / "results" / "ftopoI.npy", topoI)
 np.save(root / "results" / "ftopoII.npy", topoII)
-np.savetxt(root / "results" / "clustersI.csv", clustersI)
+np.savetxt(root / "results" / "clustersI.csv", clustersI, header="f,p,tmin,tmax")
 np.savetxt(root / "results" / "clustersII.csv", clustersII)
