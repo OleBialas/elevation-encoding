@@ -70,7 +70,7 @@ clustersII[:, 3] = clustersII[:, 3].round(3) - 1
 clustersII[:, 4] = clustersII[:, 4].round(3) - 1
 print(
     tabulate(
-        clustersI,
+        clustersII,
         tablefmt="latex",
         headers=("Subject ID", "F-score", "p-value", "Start", "Stop"),
     )
