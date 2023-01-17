@@ -45,6 +45,10 @@ for isub, sub in enumerate(subjects):
 
 # get each subjects elevation gain
 eg_test, eg_task = [], []  # elevation gain
+
+print(f"localization test: \n {linregress(eg_test, avg_acc)}")
+print(f"localization task: \n {linregress(eg_task, avg_acc)}")
+
 for subfolder in (root / "bids").glob("sub-1*"):
     fname = subfolder / "beh" / f"{subfolder.name}_task-loctest_beh.tsv"
     if fname.exists():
