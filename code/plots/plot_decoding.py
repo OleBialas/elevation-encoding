@@ -143,7 +143,7 @@ ax["B"].annotate(
     textcoords="offset points",
     arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=-.2"),
 )
-fig.text(0.05, 0.98, "A", fontsize=10, weight="bold")
-fig.text(0.55, 0.98, "B", fontsize=10, weight="bold")
+fig.text(0.06, 0.97, "A", fontsize=10, weight="bold")
+fig.text(0.55, 0.97, "B", fontsize=10, weight="bold")
 
 fig.savefig(root / "results" / "plots" / "decoding.png", dpi=300, bbox_inches="tight")
