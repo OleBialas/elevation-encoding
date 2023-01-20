@@ -44,7 +44,7 @@ for i in range(3):
             f"PC{i+1}: {eig_vals[i].round(1)}%", fontsize="medium"
         )
 ax["C2"].set_xlabel("Time [s]")
-ax["B2"].legend(loc="lower right", fontsize="x-small")
+ax["B2"].legend(loc="lower right", fontsize="xx-small")
 ax["D2"].set_ylabel("Amplitude [a.u.]")
 ax["D2"].yaxis.set_label_position("right")
 
