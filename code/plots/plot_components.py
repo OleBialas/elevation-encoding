@@ -57,7 +57,7 @@ for label in ["A", "B", "C", "D"]:
         label,
         transform=ax[label].transAxes + trans,
         fontsize=10,
-        weight='bold'
+        weight="bold",
         verticalalignment="top",
         fontfamily="serif",
     )
