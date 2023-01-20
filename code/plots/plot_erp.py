@@ -86,10 +86,11 @@ for exp in ["I", "II"]:
         show=False,
         axes=ax["2"],
         mask=mask,
-        vmin=1,
+        vlim=(1, None),
     )
     cax = fig.add_axes([0.91, 0.65, 0.01, 0.2])
-    fig.colorbar(im, cax=cax, orientation="vertical")
+    cbar = fig.colorbar(im, cax=cax, orientation="vertical")
+    cbar.set_label("F-score")
 
     for ichan in range(evoked.data.shape[0]):
         ax["1"].plot(
@@ -134,7 +135,11 @@ for exp in ["I", "II"]:
     )  # labels along the bottom edge are off
     im = ax["5"].imshow(significance, aspect="auto")
     cax = fig.add_axes([0.7, 0.11, 0.01, 0.048])
-    fig.colorbar(im, cax=cax, orientation="vertical")
+    fig.colorbar(
+        im, cax=cax, orientation="vertical", ticks=[0, int(significance.max())]
+    )
+    cax.set_title("N", fontsize="medium")
+    cax.tick_params(labelsize=8)
     xticks = [np.argmin(np.abs(evoked.times - adapter_dur - t)) for t in xticknames]
     ax["5"].set(
         yticks=[], xlabel="Time [s]", xticks=xticks, xticklabels=xticknames.round(1)
@@ -143,19 +148,21 @@ for exp in ["I", "II"]:
     ax["1"].axvline(x=-adapter_dur, ymin=0, ymax=1, color="gray", linestyle="--")
     if exp == "I":
         x = np.linspace(25, 75, tuning.shape[-1])
-        ax["3"].plot(x, tuning_mean[0], label="37.5\u00b0")
+        ax["3"].plot(x, tuning_mean[0], label="37.5\u00b0", color=colors[4])
         ax["3"].fill_between(
             x,
             tuning_mean[0] + 2 * tuning_std[0],
             tuning_mean[0] - 2 * tuning_std[0],
             alpha=0.3,
+            color=colors[4],
         )
-        ax["3"].plot(x, tuning_mean[1], label="-37.5\u00b0")
+        ax["3"].plot(x, tuning_mean[1], label="-37.5\u00b0", color=colors[6])
         ax["3"].fill_between(
             x,
             tuning_mean[1] + 2 * tuning_std[1],
             tuning_mean[1] - 2 * tuning_std[1],
             alpha=0.3,
+            color=colors[6],
         )
         ax["3"].set(
             ylabel="Mean abs. amplitude [\u03BCV]",
