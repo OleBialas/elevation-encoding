@@ -9,7 +9,7 @@ from mne.viz import plot_topomap
 
 root = Path(__file__).parent.parent.parent.absolute()
 
-fig = plt.figure()
+fig = plt.figure(figsize=(8, 4))
 gs = gridspec.GridSpec(4, 8)
 ax = {}
 ax["A"] = plt.subplot(gs[1:3, :2])
