@@ -37,7 +37,7 @@ for i in range(3):
     for j in range(4):
         X = csd[j].data
         stc = X.T @ eig_vecs[:, i]
-        stc = (savgol_filter(stc, 50, 8),)
+        stc = savgol_filter(stc, 50, 8)
         ax[labels[i] + "2"].plot(csd[0].times - 1.0, stc, label=csd[j].comment)
         ax[labels[i] + "2"].set(yticks=[])
         ax[labels[i] + "2"].set_title(
