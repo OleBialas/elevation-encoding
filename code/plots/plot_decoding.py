@@ -116,8 +116,6 @@ for i, data in enumerate([resampled_test, resampled_task]):
     )
 
 ax["B"].legend()
-ax["B"].text(0.15, 0.56, "**")
-ax["B"].text(0.22, 0.48, "n.s.")
 ax["C"].hist(eg_test, alpha=0.5, bins=20, color=colors[0])
 ax["C"].hist(eg_task, alpha=0.5, bins=20, color=colors[1])
 ax["C"].set(xlim=(0, 1), xticks=[], yticks=[2])
@@ -145,6 +143,7 @@ ax["B"].annotate(
     textcoords="offset points",
     arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=-.2"),
 )
-
+fig.text(0.1, 0.9, "A", fontsize=10)
+fig.text(0.5, 0.9, "B", fontsize=10)
 
 fig.savefig(root / "results" / "plots" / "decoding.png", dpi=300, bbox_inches="tight")
