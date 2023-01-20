@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.transforms as mtransforms
+from scipy.signal import savgol_filter
 from mne import read_evokeds
 from mne.viz import plot_topomap
 
@@ -36,13 +37,14 @@ for i in range(3):
     for j in range(4):
         X = csd[j].data
         stc = X.T @ eig_vecs[:, i]
+        stc = (savgol_filter(stc, 50, 8),)
         ax[labels[i] + "2"].plot(csd[0].times - 1.0, stc, label=csd[j].comment)
         ax[labels[i] + "2"].set(yticks=[])
         ax[labels[i] + "2"].set_title(
             f"PC{i+1}: {eig_vals[i].round(1)}%", fontsize="medium"
         )
 ax["C2"].set_xlabel("Time [s]")
-ax["C2"].legend(loc="lower left", fontsize="small")
+ax["B2"].legend(loc="lower right", fontsize="x-small")
 ax["D2"].set_ylabel("Amplitude [a.u.]")
 ax["D2"].yaxis.set_label_position("right")
 
