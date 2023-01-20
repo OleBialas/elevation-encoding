@@ -33,7 +33,7 @@ n_permute = 10000
 tmin, tmax = 0.15, 0.9
 adapter_dur = 1.0
 n_obs = 360
-thresh = binom.ppf(0.95, n, 0.5) / n  # threshold for p < .05 for one-sided test
+thresh = binom.ppf(0.95, n_obs, 0.5) / n_obs  # threshold for p < .05 for one-sided test
 
 plt.style.use(["science", "no-latex"])
 subjects = list((root / "results").glob("sub-1*"))
