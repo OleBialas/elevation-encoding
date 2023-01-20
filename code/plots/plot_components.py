@@ -61,4 +61,4 @@ for label in ["A", "B", "C", "D"]:
         fontfamily="serif",
     )
 
-plt.savefig(root / "results" / "plots" / "components.png", dpi=300)
+plt.savefig(root / "results" / "plots" / "components.png", dpi=300, bbox_inches="tight")
