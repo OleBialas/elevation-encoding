@@ -6,7 +6,7 @@ import matplotlib.transforms as mtransforms
 from mne import read_evokeds
 from mne.viz import plot_topomap
 
-root = Path(__file__).parent.parent.absolute()
+root = Path(__file__).parent.parent.parent.absolute()
 
 gs = gridspec.GridSpec(4, 8)
 ax = {}
