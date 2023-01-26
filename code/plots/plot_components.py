@@ -14,12 +14,12 @@ gs = gridspec.GridSpec(4, 8)
 ax = {}
 ax["A"] = plt.subplot(gs[1:3, :2])
 ax["B"] = plt.subplot(gs[:2, 2:4])
-ax["B2"] = plt.subplot(gs[2:, 2:4])
+ax["E"] = plt.subplot(gs[2:, 2:4])
 ax["C"] = plt.subplot(gs[:2, 4:6])
-ax["C2"] = plt.subplot(gs[2:, 4:6])
+ax["F"] = plt.subplot(gs[2:, 4:6])
 ax["D"] = plt.subplot(gs[:2, 6:])
-ax["D2"] = plt.subplot(gs[2:, 6:])
-
+ax["G"] = plt.subplot(gs[2:, 6:])
+plt.subplots_adjust(hspace=0.3)
 csd = read_evokeds(root / "results" / "group_csd-ave.fif")
 X = csd[-1].data
 X -= X.mean(axis=1, keepdims=True)  # subtract each channels mean
@@ -31,25 +31,25 @@ eig_vals = (eig_vals / eig_vals.sum()) * 100
 ax["A"].plot(eig_vals, color="black", linewidth=1.5)
 ax["A"].set(ylabel="Variance explained [%]", xlabel="Component", xlim=(0, 20))
 
-labels = ["B", "C", "D"]
+labels = ["B", "C", "D", "E", "F", "G"]
 for i in range(3):
     plot_topomap(eig_vecs[:, i], csd[0].info, show=False, axes=ax[labels[i]])
     for j in range(4):
         X = csd[j].data
         stc = X.T @ eig_vecs[:, i]
         stc = savgol_filter(stc, 50, 8)
-        ax[labels[i] + "2"].plot(csd[0].times - 1.0, stc, label=csd[j].comment)
-        ax[labels[i] + "2"].set(yticks=[])
-        ax[labels[i] + "2"].set_title(
+        ax[labels[i + 3]].plot(csd[0].times - 1.0, stc, label=csd[j].comment)
+        ax[labels[i + 3]].set(yticks=[])
+        ax[labels[i + 3]].set_title(
             f"PC{i+1}: {eig_vals[i].round(1)}%", fontsize="medium"
         )
-ax["C2"].set_xlabel("Time [s]")
-ax["B2"].legend(loc="lower right", fontsize="xx-small")
-ax["D2"].set_ylabel("Amplitude [a.u.]")
-ax["D2"].yaxis.set_label_position("right")
+ax["F"].set_xlabel("Time [s]")
+ax["F"].legend(loc="lower right", fontsize="xx-small")
+ax["G"].set_ylabel("Amplitude [a.u.]")
+ax["G"].yaxis.set_label_position("right")
 
 
-for label in ["A", "B", "C", "D"]:
+for label in ax.keys():
     trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
     ax[label].text(
         0.0,
