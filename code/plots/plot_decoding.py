@@ -33,7 +33,13 @@ n_permute = 10000
 tmin, tmax = 0.15, 0.9
 adapter_dur = 1.0
 n_obs = 360
-thresh = binom.ppf(0.95, n_obs, 0.5) / n_obs  # threshold for p < .05 for one-sided test
+
+# simulate binomial threshold
+n_success = []
+for i in range(n_permute):
+    n_success.append(np.mean([np.random.binomial(200, 0.5) for j in range(30)]) / 200)
+thresh = np.quantile(n_success, 0.999)
+
 
 plt.style.use(["science", "no-latex"])
 subjects = list((root / "results").glob("sub-1*"))
@@ -45,6 +51,14 @@ for isub, sub in enumerate(subjects):
         decoding_data = np.zeros((len(subjects), len(keys), results[keys[0]].shape[-1]))
     for ikey, key in enumerate(keys):
         decoding_data[isub, ikey, :] = results[key].mean(axis=0)
+
+decoding_resampled = np.zeros(
+    (n_permute, decoding_data.shape[1], decoding_data.shape[2])
+)
+for i in range(n_permute):
+    idx = np.random.choice(range(decoding_data.shape[0]), decoding_data.shape[0])
+    decoding_resampled[i] = decoding_data[idx].mean(axis=0)
+
 
 # get each subjects elevation gain
 eg_test, eg_task = [], []  # elevation gain
@@ -83,11 +97,11 @@ for ip in range(n_permute):
 
 # plot the data
 for ikey, key in enumerate(keys):
-    ax["A"].plot(
-        times - adapter_dur,
-        savgol_filter(decoding_data.mean(axis=0)[ikey], 50, 8),
-        label=key,
-    )
+    mean = savgol_filter(decoding_resampled[:, ikey, :].mean(axis=0), 100, 8)
+    std = savgol_filter(decoding_resampled[:, ikey, :].std(axis=0), 100, 8)
+    ax["A"].plot(times - adapter_dur, mean, label=key)
+    ax["A"].fill_between(times - adapter_dur, mean + std, mean - std, alpha=0.3)
+
 ax["A"].legend(loc="upper left")
 ax["A"].set(
     xlabel="Time [s]",
