@@ -148,38 +148,27 @@ for exp in ["I", "II"]:
     ax["1"].axvline(x=-adapter_dur, ymin=0, ymax=1, color="gray", linestyle="--")
     if exp == "I":
         x = np.linspace(25, 75, tuning.shape[-1])
-        ax["3"].plot(x, tuning_mean.mean(axis=0), label="37.5\u00b0", color="black")
+        ax["3"].plot(x, tuning_mean[0], color="black")
         ax["3"].fill_between(
             x,
-            tuning_mean.mean(axis=0) + 2 * tuning_std.mean(axis=0),
-            tuning_mean.mean(axis=0) - 2 * tuning_std.mean(axis=0),
-            alpha=0.3,
+            tuning_mean[0] + 2 * tuning_std[0],
+            tuning_mean[0] - 2 * tuning_std[0],
+            alpha=0.1,
             color="black",
         )
-        ax["3"].plot(x, tuning_mean[0], label="-37.5\u00b0", color=colors[6])
-        ax["3"].plot(x, tuning_mean[1], label="-37.5\u00b0", color=colors[6])
+        ax["3"].plot(
+            x, tuning_mean[1], label="-37.5\u00b0", color="black", linestyle="dotted"
+        )
+        ax["3"].plot(
+            x, tuning_mean[2], label="-37.5\u00b0", color="black", linestyle="dashed"
+        )
 
         ax["3"].set(
             ylabel="Mean abs. amplitude [\u03BCV]",
             xlabel="Adapter-probe distance [\u00b0]",
         )
-
-        ax["3"].annotate(
-            "*",
-            xy=(30, tuning_mean[0, 5]),
-            xycoords="data",
-            xytext=(50, -20),
-            textcoords="offset points",
-            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=-.2"),
-        )
-        ax["3"].annotate(
-            "n.s.",
-            xy=(50, tuning_mean[1, 49]),
-            xycoords="data",
-            xytext=(-40, 40),
-            textcoords="offset points",
-            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"),
-        )
+        ax["3"].legend(loc="upper left")
+        ax["3"].text(32, 0.65, "*")
 
     else:
         x = np.linspace(-37.5, 37.5, tuning.shape[-1])
@@ -188,7 +177,7 @@ for exp in ["I", "II"]:
             x,
             tuning_mean + 2 * tuning_std,
             tuning_mean - 2 * tuning_std,
-            alpha=0.3,
+            alpha=0.1,
             color="black",
         )
         ax["3"].set(
