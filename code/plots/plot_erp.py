@@ -167,7 +167,7 @@ for exp in ["I", "II"]:
             ylabel="Mean abs. amplitude [\u03BCV]",
             xlabel="Adapter-probe distance [\u00b0]",
         )
-        ax["3"].legend(loc="upper left")
+        ax["3"].legend(loc="upper left", fontsize="x-small")
         ax["3"].text(32, 0.65, "*")
 
     else:
