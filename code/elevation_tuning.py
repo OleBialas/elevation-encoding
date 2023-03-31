@@ -20,7 +20,7 @@ for exp in ["I", "II"]:
         tmin, tmax = 0.7, 0.9
         ch = "Cz"
         x = np.stack([[25, 50, 75, 75, 50, 25] for i in range(len(subs))])
-        tuning = np.zeros((n_resample, 2, n_elevations))
+        tuning = np.zeros((n_resample, 3, n_elevations))
     else:
         subs = list((root / "preprocessed").glob("sub-1*"))
         tmin, tmax = 1.15, 1.85
@@ -75,6 +75,7 @@ for exp in ["I", "II"]:
         idx = np.random.choice(len(data), len(data))
         resampled = data[idx, :]
         if exp == "I":
+            b, a, r, p, _ = linregress(x.flatten(), resampled.flatten())
             b, a, r, p, _ = linregress(x[:, :3].flatten(), resampled[:, :3].flatten())
             tuning[i, 0, :] = line(a, b, np.linspace(x.min(), x.max(), n_elevations))
             b, a, r, p, _ = linregress(x[:, 3:].flatten(), resampled[:, 3:].flatten())
