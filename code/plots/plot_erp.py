@@ -157,7 +157,7 @@ for exp in ["I", "II"]:
             color="black",
         )
         ax["3"].plot(
-            x, tuning_mean[1], label="-37.5\u00b0", color="black", linestyle="dotted"
+            x, tuning_mean[1], label="+37.5\u00b0", color="black", linestyle="dotted"
         )
         ax["3"].plot(
             x, tuning_mean[2], label="-37.5\u00b0", color="black", linestyle="dashed"
