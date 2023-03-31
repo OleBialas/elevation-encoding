@@ -168,7 +168,14 @@ for exp in ["I", "II"]:
             xlabel="Adapter-probe distance [\u00b0]",
         )
         ax["3"].legend(loc="upper left", fontsize="x-small")
-        ax["3"].text(32, 0.65, "*")
+        ax["3"].annotate(
+            "*",
+            xy=(30, tuning_mean[0, 5]),
+            xycoords="data",
+            xytext=(50, -25),
+            textcoords="offset points",
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=-.2"),
+        )
 
     else:
         x = np.linspace(-37.5, 37.5, tuning.shape[-1])
@@ -184,7 +191,6 @@ for exp in ["I", "II"]:
             ylabel="Mean amplitude [\u03BCV]",
             xlabel="Elevation [\u00b0]",
         )
-        ax["3"].text(0, 0.2, "***")
 
     ax["3"].yaxis.tick_right()
     ax["3"].yaxis.set_label_position("right")
