@@ -76,10 +76,11 @@ for exp in ["I", "II"]:
         resampled = data[idx, :]
         if exp == "I":
             b, a, r, p, _ = linregress(x.flatten(), resampled.flatten())
-            b, a, r, p, _ = linregress(x[:, :3].flatten(), resampled[:, :3].flatten())
             tuning[i, 0, :] = line(a, b, np.linspace(x.min(), x.max(), n_elevations))
-            b, a, r, p, _ = linregress(x[:, 3:].flatten(), resampled[:, 3:].flatten())
+            b, a, r, p, _ = linregress(x[:, :3].flatten(), resampled[:, :3].flatten())
             tuning[i, 1, :] = line(a, b, np.linspace(x.min(), x.max(), n_elevations))
+            b, a, r, p, _ = linregress(x[:, 3:].flatten(), resampled[:, 3:].flatten())
+            tuning[i, 2, :] = line(a, b, np.linspace(x.min(), x.max(), n_elevations))
         else:
             b, a, r, p, _ = linregress(x.flatten(), resampled.flatten())
             tuning[i, :] = line(a, b, np.linspace(x.min(), x.max(), n_elevations))
