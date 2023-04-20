@@ -36,7 +36,7 @@ for i in range(3):
     plot_topomap(eig_vecs[:, i], csd[0].info, show=False, axes=ax[labels[i]])
     for j in range(4):
         X = csd[j].data
-        stc = X.T @ eig_vecs[:, i] * eig_vals[i]
+        stc = X.T @ (eig_vecs[:, i] * eig_vals[i])
         stc = savgol_filter(stc, 50, 8)
         ax[labels[i + 3]].plot(csd[0].times - 1.0, stc, label=csd[j].comment)
         ax[labels[i + 3]].set(yticks=[])
